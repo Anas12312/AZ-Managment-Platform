@@ -1,4 +1,3 @@
-
 const express = require('express')
 require('./db/mongoose')
 const userRouter = require('./routers/user')
