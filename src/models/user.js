@@ -6,17 +6,18 @@ const jwt = require('jsonwebtoken')
 const unitInvitationSchema = new mongoose.Schema({
     unitId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "Unit"
     },
     invitedById: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Unit"
+        ref: "User"
     },
     date: {
         type: Date,
         default: Date.now()
     }
 })
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -44,7 +45,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Unit"
     }],
-    unitInvitiations: [unitInvitationSchema],
+    invitations: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Invitation"
+    }],
     tokens: [
         {
             token: {

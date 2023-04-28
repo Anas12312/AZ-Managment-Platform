@@ -1,20 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 
-const invitationSchema = new mongoose.Schema({
-    invitedId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    invitedById: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    date: {
-        type: Date,
-        default: Date.now()
-    }
-})
+
 const schema = new mongoose.Schema({
     name: {
         type: String,
@@ -38,7 +25,10 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
-    invitations: [invitationSchema]
+    invitations: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Invitation"
+    }]
 })
 
 const Unit = mongoose.model('Unit', schema)

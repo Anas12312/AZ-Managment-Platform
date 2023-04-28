@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/user')
 const Unit = require('../models/unit')
+const Invitation = require('../models/invitation')
 const router = new express.Router()
 const auth = require('../middleware/auth')
 
@@ -75,14 +76,19 @@ router.delete('/units/:id', auth, async (req, res) => {
     }
 })
 // invite users to unit
-router.post("/units/invite/:userId/:unitId", auth,  async(req, res) => {
+router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
     const user = req.user
     const invitedUserId = req.params.invitedUserId
     const unitId = req.params.unitId
     try {
         const unit = await Unit.findById(unitId)
+        const invitedUser = await User.findById(invitedUserId)
+
+        if(!invitedUser) {
+            return res.status(404).send('User not found')
+        }
         if(!unit) {
-            return res.status(404).send()
+            return res.status(404).send('Unit not found')
         }
         if(!unit.users.includes(user._id)) {
             return res.status(401).send()
@@ -90,26 +96,35 @@ router.post("/units/invite/:userId/:unitId", auth,  async(req, res) => {
         if(unit.users.includes(invitedUserId)) {
             return res.status(400).send("This User Already Exists in this Unit")
         }
-        const invitation = unit.invitations.find(invitation => invitation.invitedId.equals(invitedUserId))
-        if(invitation) {
+
+        const exists = await Invitation.findOne({ unit:unit._id, invited:invitedUser._id })
+        console.log(exists);
+        if(exists) {
             return res.status(400).send("Already Invited")
         }
 
-        unit.invitations = unit.invitations.concat({
-            invitedById: user._id,
-            invitedId: invitedUserId,
-            date: Date.now()
+        const invitation = new Invitation({
+            invitedBy: user._id,
+            invited: invitedUser._id,
+            unit: unit._id
         })
-        const invitedUser = await User.findById(invitedUserId)
-        invitedUser.unitInvitiations = invitedUser.unitInvitiations.concat({
-            invitedById: user._id,
-            unitId: unitId,
-            date: Date.now()
-        })
+
+        await invitation.save()
+
+        unit.invitations = unit.invitations.concat( invitation._id )
+        invitedUser.invitations = invitedUser.invitations.concat( invitation._id )
+
         await unit.save()
         await user.save()
+
+        res.send(invitation)
     }catch(e) {
         res.status(500).send()
     }
+})
+
+//Accept Invetation
+router.post('/units/accept/:unitId', auth, (req, res) => {
+    
 })
 module.exports = router
