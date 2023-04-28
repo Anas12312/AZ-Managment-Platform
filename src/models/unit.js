@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
-
+const Invitation = require('./invitation')
+const User = require('./user')
 
 const schema = new mongoose.Schema({
     name: {
@@ -30,6 +31,22 @@ const schema = new mongoose.Schema({
         ref: "Invitation"
     }]
 })
+
+schema.pre('deleteOne', {document:true, query: false}, async function(next) {
+    const unit = this
+
+    await Invitation.deleteMany({ unit: unit._id})
+
+    await unit.populate('users')
+
+    unit.users.forEach(async (user) => {
+        user.units = user.units.filter((u) => u.toString() !== unit._id.toString() )
+        await user.save()
+    })
+
+    next()
+})
+
 
 const Unit = mongoose.model('Unit', schema)
 
