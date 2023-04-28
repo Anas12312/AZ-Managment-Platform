@@ -1,19 +1,23 @@
 const express = require('express')
+const auth = require('../middleware/auth')
 const User = require('../models/user')
 const Unit = require('../models/unit')
 const Invitation = require('../models/invitation')
+
 const router = new express.Router()
-const auth = require('../middleware/auth')
 
 //CRUD
 router.post('/units', auth, async (req, res) => {
     const user = req.user
     const unit = new Unit(req.body)
-    unit.owner = user._id;
-    unit.users = unit.users.concat(user._id)
-    user.units = user.units.concat(unit._id)
+
     try {
         await unit.save()
+        user.units = user.units.concat(unit._id)
+        
+        unit.owner = user._id;
+        unit.users = unit.users.concat(user._id)
+
         await user.save()
         res.status(201).send(unit)
     } catch (e) {
@@ -32,6 +36,7 @@ router.get('/units', auth, async (req, res) => {
     }
 })
 
+//GET Unit by Id
 router.get('/units/:id', auth ,async (req, res) => {
     const _id = req.params.id
     const user = req.user
@@ -51,6 +56,7 @@ router.get('/units/:id', auth ,async (req, res) => {
     }
 })
 
+//DELETE Unit
 router.delete('/units/:id', auth, async (req, res) => {
     const user = req.user
     const _id = req.params.id
@@ -69,7 +75,8 @@ router.delete('/units/:id', auth, async (req, res) => {
         res.status(500).send(e.message)
     }
 })
-// invite users to unit
+
+//Invite users to unit
 router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
     const user = req.user
     const invitedUserId = req.params.invitedUserId
@@ -168,18 +175,6 @@ router.post('/units/decline/:invitationId', auth, async (req, res) => {
 
         res.send('Decline')
     } catch (error) {
-        res.status(500).send()
-    }
-})
-
-// Get All Invitations (User)
-router.get('/invitations', auth, async (req,res) => {
-    const user = req.user
-    try {
-        await user.populate('invitations')
-        res.send(user.invitations)
-    }catch(e) {
-        console.log(e);
         res.status(500).send()
     }
 })
