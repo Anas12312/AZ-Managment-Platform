@@ -15,6 +15,6 @@ const schema = new mongoose.Schema({
     }
 })
 
-const unit = mongoose.model('Unit', schema)
+const Unit = mongoose.model('Unit', schema)
 
-module.exports = unit
+module.exports = Unit
