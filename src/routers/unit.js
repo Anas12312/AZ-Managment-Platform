@@ -62,17 +62,11 @@ router.delete('/units/:id', auth, async (req, res) => {
         if(!unit.owner.equals(user._id)) {
             return res.status(401).send("You Are Not the Owner")
         }
-        unit.users.forEach(async (user) => {
-            console.log(user);
-            const u = await User.findById(user)
-            console.log(u);
-            u.units = u.units.filter((unit) => !unit.equals(_id))
-            await u.save()
-        })
-        await unit.deleteOne();
-        res.send(unit.name + ": Deleted Successfully")
+        await unit.deleteOne()
+        res.send("Deleted Successfully")
     } catch (e) {
-        res.status(500).send()
+        console.log(e);
+        res.status(500).send(e.message)
     }
 })
 // invite users to unit
@@ -98,7 +92,6 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
         }
 
         const exists = await Invitation.findOne({ unit:unit._id, invited:invitedUser._id })
-        console.log(exists);
         if(exists) {
             return res.status(400).send("Already Invited")
         }
@@ -115,7 +108,7 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
         invitedUser.invitations = invitedUser.invitations.concat( invitation._id )
 
         await unit.save()
-        await user.save()
+        await invitedUser.save()
 
         res.send(invitation)
     }catch(e) {
@@ -124,7 +117,58 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
 })
 
 //Accept Invetation
-router.post('/units/accept/:unitId', auth, (req, res) => {
-    
+router.post('/units/accept/:invitationId', auth, async (req, res) => {
+    const invitationId = req.params.invitationId
+    const user = req.user
+
+    try {
+        const invitation = await Invitation.findById(invitationId)
+        if(!invitation) {
+            res.status(404).send('Invitation not found')
+        }
+        if(user._id.toString() !== invitation.invited.toString() ) {
+            res.status(401).send('Your not the invited user')
+        }
+        
+        
+        const unit = await Unit.findById(invitation.unit)
+        unit.users = unit.users.concat(user._id)
+
+        user.units = user.units.concat(unit._id)
+
+        invitation.status = 'ACCEPTED'
+        
+        unit.save()
+        user.save()
+        invitation.save()
+
+        res.send('Accepted')
+    } catch (error) {
+        res.status(500).send()
+    }
+})
+
+//Decline Invetation
+router.post('/units/decline/:invitationId', auth, async (req, res) => {
+    const invitationId = req.params.invitationId
+    const user = req.user
+
+    try {
+        const invitation = await Invitation.findById(invitationId)
+        if(!invitation) {
+            res.status(404).send('Invitation not found')
+        }
+        if(user._id.toString() !== invitation.invited.toString() ) {
+            res.status(401).send('Your not the invited user')
+        }
+        
+        invitation.status = 'DECLINED'
+        
+        invitation.save()
+
+        res.send('Decline')
+    } catch (error) {
+        res.status(500).send()
+    }
 })
 module.exports = router
