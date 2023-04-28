@@ -98,7 +98,6 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
         }
 
         const exists = await Invitation.findOne({ unit:unit._id, invited:invitedUser._id })
-        console.log(exists);
         if(exists) {
             return res.status(400).send("Already Invited")
         }
@@ -115,7 +114,7 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
         invitedUser.invitations = invitedUser.invitations.concat( invitation._id )
 
         await unit.save()
-        await user.save()
+        await invitedUser.save()
 
         res.send(invitation)
     }catch(e) {
@@ -127,4 +126,18 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
 router.post('/units/accept/:unitId', auth, (req, res) => {
     
 })
+
+// Get All Invitations (User)
+router.get('/invitations', auth, async (req,res) => {
+    const user = req.user
+    try {
+        await user.populate('invitations')
+        res.send(user.invitations)
+    }catch(e) {
+        console.log(e);
+        res.status(500).send()
+    }
+})
+
+
 module.exports = router
