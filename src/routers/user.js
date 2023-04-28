@@ -1,7 +1,9 @@
 const express = require('express')
 const User = require('../models/user')
 const router = new express.Router()
+const auth = require('../middleware/auth')
 
+//CRUD
 router.post('/users', async (req, res) => {
     const user = new User(req.body)
 
@@ -37,7 +39,6 @@ router.get('/users/:id', async (req, res) => {
         res.status(500).send()
     }
 })
-
 
 router.delete('/users/:id', async (req, res) => {
     try {

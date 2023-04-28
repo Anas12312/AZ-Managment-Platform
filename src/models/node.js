@@ -15,6 +15,6 @@ const schema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-const node = mongoose.model('Node', schema)
+const Node = mongoose.model('Node', schema)
 
-module.exports = node
+module.exports = Node
