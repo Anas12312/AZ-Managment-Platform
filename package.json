@@ -20,6 +20,8 @@
     "validator": "^13.9.0"
   },
   "devDependencies": {
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^18.16.2",
     "env-cmd": "^10.1.0",
     "nodemon": "^2.0.22"
   }
