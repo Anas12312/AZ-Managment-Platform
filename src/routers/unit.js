@@ -124,7 +124,7 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
 })
 
 //Accept Invetation
-router.post('/units/accept/:invitationId', auth, async (req, res) => {
+router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
     const invitationId = req.params.invitationId
     const user = req.user
 
@@ -156,7 +156,7 @@ router.post('/units/accept/:invitationId', auth, async (req, res) => {
 })
 
 //Decline Invetation
-router.post('/units/decline/:invitationId', auth, async (req, res) => {
+router.post('/invitations/decline/:invitationId', auth, async (req, res) => {
     const invitationId = req.params.invitationId
     const user = req.user
 
@@ -175,6 +175,66 @@ router.post('/units/decline/:invitationId', auth, async (req, res) => {
 
         res.send('Decline')
     } catch (error) {
+        res.status(500).send()
+    }
+})
+
+
+// Get All Invitations (User)
+router.get('/invitations', auth, async (req,res) => {
+    const user = req.user
+    const filter = req.query.filter
+    try {
+        await user.populate('invitations')
+        let invitations = user.invitations
+        if(!user) {
+            return res.status(404).send()
+        }
+
+        if(filter === "a") {
+            invitations = invitations.filter((invitation) => invitation.status === "ACCEPTED")
+        }
+        if(filter === "d") {
+            invitations = invitations.filter((invitation) => invitation.status === "DECLINED")
+        }
+        if(filter === "p") {
+            invitations = invitations.filter((invitation) => invitation.status === "PENDING")
+        }
+
+        
+        res.send(invitations)
+    }catch(e) {
+        console.log(e);
+        res.status(500).send()
+    }
+})
+
+// Get All Invitations (Unit)
+router.get('/invitations/:id', auth, async (req,res) => {
+    const unitId = req.params.id
+    const filter = req.query.filter
+    try {
+        const unit = await Unit.findById(unitId)
+        await unit.populate('invitations')
+        let invitations = unit.invitations
+        if(!unit) {
+            return res.status(404).send()
+        }
+
+        if(filter === "a") {
+            invitations = invitations.filter((invitation) => invitation.status === "ACCEPTED")
+        }
+        if(filter === "d") {
+            invitations = invitations.filter((invitation) => invitation.status === "DECLINED")
+        }
+        if(filter === "p") {
+            invitations = invitations.filter((invitation) => invitation.status === "PENDING")
+        }
+
+        
+        res.send(invitations)
+    }catch(e) {
+        console.log(e);
         res.status(500).send()
     }
 })
