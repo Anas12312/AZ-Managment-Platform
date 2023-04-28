@@ -3,6 +3,20 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
+const unitInvitationSchema = new mongoose.Schema({
+    unitId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
+    invitedById: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Unit"
+    },
+    date: {
+        type: Date,
+        default: Date.now()
+    }
+})
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -26,6 +40,11 @@ const userSchema = new mongoose.Schema({
         minlength: 8,
         trim: true
     },
+    units: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Unit"
+    }],
+    unitInvitiations: [unitInvitationSchema],
     tokens: [
         {
             token: {

@@ -12,7 +12,12 @@ const schema = new mongoose.Schema({
         type: String,
         required: false,
         trim: true
-    }
+    },
+    parentUnit: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Unit"
+    },
+    resources: []
 }, { timestamps: true })
 
 const Node = mongoose.model('Node', schema)
