@@ -171,4 +171,18 @@ router.post('/units/decline/:invitationId', auth, async (req, res) => {
         res.status(500).send()
     }
 })
+
+// Get All Invitations (User)
+router.get('/invitations', auth, async (req,res) => {
+    const user = req.user
+    try {
+        await user.populate('invitations')
+        res.send(user.invitations)
+    }catch(e) {
+        console.log(e);
+        res.status(500).send()
+    }
+})
+
+
 module.exports = router
