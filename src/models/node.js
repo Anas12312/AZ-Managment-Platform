@@ -32,7 +32,7 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         def: 'User'
     },
-    parent: {
+    parentNode: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Node'
     },

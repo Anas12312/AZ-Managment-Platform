@@ -13,7 +13,7 @@ app.use(express.json())
 app.use(accountRouter)
 app.use(userRouter)
 app.use(unitRouter)
-// app.use(nodeRouter)
+app.use(nodeRouter)
 
 app.listen(port, () => {
     console.log('Server is Running on port: ' + port)
