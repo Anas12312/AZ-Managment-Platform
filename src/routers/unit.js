@@ -2,6 +2,7 @@ const express = require('express')
 const auth = require('../middleware/auth')
 const User = require('../models/user')
 const Unit = require('../models/unit')
+const Node = require('../models/node')
 const Invitation = require('../models/invitation')
 
 const router = new express.Router()
@@ -13,12 +14,19 @@ router.post('/units', auth, async (req, res) => {
 
     try {
         await unit.save()
+        const node = new Node({
+            _id: unit._id,
+            name: "root",
+            parentUnit: unit._id,
+        })
+        await node.save()
         user.units = user.units.concat(unit._id)
         
         unit.owner = user._id;
         unit.users = unit.users.concat(user._id)
 
         await user.save()
+        await unit.save()
         res.status(201).send(unit)
     } catch (e) {
         res.status(400).send(e)
