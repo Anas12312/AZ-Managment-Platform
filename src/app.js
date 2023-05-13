@@ -4,6 +4,7 @@ const userRouter = require('./routers/user')
 const unitRouter = require('./routers/unit')
 const nodeRouter = require('./routers/node')
 const accountRouter = require('./routers/account')
+const resourceRouter = require('./routers/rescource')
 
 const app = express()
 const port = process.env.PORT || 3000
