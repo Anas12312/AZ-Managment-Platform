@@ -2,6 +2,7 @@ const express = require('express')
 const auth = require('../middleware/auth')
 const Unit = require('../models/unit')
 const Node = require('../models/node')
+
 const Resource = require('../models/resource')
 
 const router = new express.Router()
@@ -32,8 +33,6 @@ router.post("/resource/:nodeId", auth, async(req, res) => {
     }
 })
 // Get
-
-
 
 module.exports = router
 
