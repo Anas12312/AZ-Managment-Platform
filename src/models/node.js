@@ -41,7 +41,12 @@ const schema = new mongoose.Schema({
         ref: 'Unit'
     },
     //Childs
-    resources: [ ],
+    resources: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Resource'
+        }
+     ],
     nodes: [
         {
             type: mongoose.Schema.Types.ObjectId,

@@ -1,5 +1,17 @@
 const mongoose = require('mongoose')
+const dataSchema = new mongoose.Schema({
+    link: {
+        type: String
+    },
+    text: {
+        type: String
+    },
+    file: {
+        type: String
+    },
+    data:{}
 
+})
 const schema = new mongoose.Schema({
     name: {
         type: String,
@@ -11,13 +23,13 @@ const schema = new mongoose.Schema({
         required: true,
         default: "MIX"  // MIX, TEXT, LINKS, FILES
     },
-    data: [ ],
+    data: dataSchema,
     parentNode: {
-        type: mongoose.Schema.types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Node"
     },
-    owner: {
-        type: mongoose.Schema.types.ObjectId,
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }
 }, 
