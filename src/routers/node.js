@@ -45,7 +45,7 @@ router.get('/nodes/:nodeId',auth, async (req, res) => {
             return res.status(401).send("You Dont Have Permission to View this Node")
         }
         await node.populate("nodes")
-
+        await node.populate("resources")
         res.send(node)
     } catch (e) {
         console.log(e);
