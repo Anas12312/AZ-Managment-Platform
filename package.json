@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "env-cmd -f ./config/dev.env nodemon src/app.js",
-    "start": "node app.js",
+    "start": "node src/app.js",
+    "run-z": "c:/users/zyad/mongodb/bin/mongod.exe --dbpath=c:/users/zyad/mongodb-data",
     "git-a": "git add . && git commit -m 'anas' && git push origin anas",
     "git-z": "git add . && git commit -m 'zyad' && git push origin zyad"
   },
