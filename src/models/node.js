@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Resource = require('./resource')
 
 const schema = new mongoose.Schema({
     //Info
@@ -56,6 +57,27 @@ const schema = new mongoose.Schema({
 }, 
 {
     timestamps: true
+})
+
+schema.methods.isAllowedUser = async function(user) {
+    const node = this
+    
+    await node.populate("parentUnit")
+
+    return node.parentUnit.users.includes(user._id);
+}
+
+schema.pre('deleteOne', {document: true, query: false}, async function(next) {
+
+    await Resource.deleteMany({ parentNode: this._id });
+
+    const nodes = await Node.find({ parentNode:this._id });
+
+    nodes.forEach(async res => {
+        await res.deleteOne();
+    })
+
+    next();
 })
 
 const Node = mongoose.model('Node', schema)
