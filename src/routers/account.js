@@ -34,4 +34,21 @@ router.post('/account/logout-all', auth, async (req, res) => {
     }
 })
 
+router.post('/account/signup', async (req, res) => {
+    const user = new User(req.body)
+
+    try {
+        const exists = await User.findOne({email: req.body.email})
+        if(exists) {
+            return res.status(400).send({error : "Email already in user"})
+        }
+
+        await user.save()
+        const token = await user.generateAuthToken()
+        res.status(201).send({ user, token })
+    } catch (e) {
+        res.status(400).send({error: e.message})
+    }
+})
+
 module.exports = router;
