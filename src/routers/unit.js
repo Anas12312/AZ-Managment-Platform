@@ -10,16 +10,13 @@ const router = new express.Router()
 //CRUD
 router.post('/units', auth, async (req, res) => {
     const user = req.user
-    const unit = new Unit(req.body)
-
+    
     try {
+        const unit = new Unit(req.body)
         await unit.save()
-        const node = new Node({
-            _id: unit._id,
-            name: "root",
-            parentUnit: unit._id,
-        })
-        await node.save()
+
+        await unit.initRootNode();
+
         user.units = user.units.concat(unit._id)
         
         unit.owner = user._id;
@@ -29,7 +26,8 @@ router.post('/units', auth, async (req, res) => {
         await unit.save()
         res.status(201).send(unit)
     } catch (e) {
-        res.status(400).send(e)
+        console.log(e);
+        res.status(400).send(e.message)
     }
 })
 
