@@ -23,6 +23,12 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    ownerName: {
+        type: String
+    },
+    coverUrl : {
+        type: String
+    },
     users: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
@@ -62,7 +68,6 @@ schema.pre('deleteOne', {document:true, query: false}, async function(next) {
 
     next()
 })
-
 
 const Unit = mongoose.model('Unit', schema)
 
