@@ -24,7 +24,8 @@ const schema = new mongoose.Schema({
         ref: "User"
     },
     ownerName: {
-        type: String
+        type: String,
+        require: true,
     },
     coverUrl : {
         type: String

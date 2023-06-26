@@ -22,7 +22,7 @@ router.post('/units', auth, async (req, res) => {
         unit.owner = user._id;
         unit.ownerName = user.name
         unit.users = unit.users.concat(user._id)
-
+        unit.ownerName = user.name
         await user.save()
         await unit.save()
 
@@ -36,8 +36,20 @@ router.post('/units', auth, async (req, res) => {
 // Get All Units for User
 router.get('/units', auth, async (req, res) => {
     const user = req.user
+    const pageOptions = {
+        page: parseInt(req.query.page, 10) || 0,
+        limit: parseInt(req.query.limit, 10) || 10
+    }
     try {
-        const units = await user.populate('units');
+        //const units = await user.populate('units');
+        const units = await user.populate({
+            path: 'units',
+            options: {
+                sort: { createdAt: -1},
+                skip: pageOptions.page * pageOptions.limit,
+                limit: pageOptions.limit
+            }
+        })
         res.send(units.units)
     } catch (e) {
         res.status(500).send()
