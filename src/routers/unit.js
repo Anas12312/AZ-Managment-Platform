@@ -40,15 +40,19 @@ router.get('/units', auth, async (req, res) => {
     }
     try {
         //const units = await user.populate('units');
+        const count = user.units.length
         const units = await user.populate({
             path: 'units',
             options: {
-                sort: { createdAt: -1},
                 skip: pageOptions.page * pageOptions.limit,
                 limit: pageOptions.limit
             }
         })
-        res.send(units.units)
+        const response = {
+            units: units.units,
+            count
+        }
+        res.send(response)
     } catch (e) {
         res.status(500).send()
     }
