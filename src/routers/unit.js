@@ -20,10 +20,12 @@ router.post('/units', auth, async (req, res) => {
         user.units = user.units.concat(unit._id)
         
         unit.owner = user._id;
+        unit.ownerName = user.name
         unit.users = unit.users.concat(user._id)
         unit.ownerName = user.name
         await user.save()
         await unit.save()
+
         res.status(201).send(unit)
     } catch (e) {
         console.log(e);
