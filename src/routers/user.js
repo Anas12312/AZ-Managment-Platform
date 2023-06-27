@@ -53,5 +53,14 @@ router.delete('/users/:id', async (req, res) => {
         res.status(500).send()
     }
 })
-
+router.put('/users', auth, async(req, res) => {
+    const user = req.user
+    try {
+        await User.updateOne({_id: user._id},req.body)
+        res.send("Updated Successfully")
+    }catch (e) {
+        console.log(e);
+        res.status(500).send(e.message)
+    }
+})
 module.exports = router

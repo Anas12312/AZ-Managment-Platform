@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema({
         minlength: 8,
         trim: true
     },
+    imgUrl: {
+        type: String,
+    },
     units: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Unit"
