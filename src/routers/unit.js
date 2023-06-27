@@ -35,8 +35,7 @@ router.post('/units', auth, async (req, res) => {
 
 // Get All Units for User
 router.get('/units', auth, async (req, res) => {
-    setTimeout(async()=> {
-        const user = req.user
+    const user = req.user
         const pageOptions = {
             page: parseInt(req.query.page, 10) || 0,
             limit: parseInt(req.query.limit, 10) || 10
@@ -59,7 +58,6 @@ router.get('/units', auth, async (req, res) => {
         } catch (e) {
             res.status(500).send()
         }
-    },2000)
 })
 
 //GET Unit by Id
@@ -82,7 +80,26 @@ router.get('/units/:id', auth ,async (req, res) => {
     }
 })
 
-//DELETE Unit
+//Update Unit
+router.put('/units/:id', auth, async(req, res) => {
+    const user = req.user
+    const _id = req.params.id
+    try {
+        const unit = await Unit.findById(_id)
+        if(!unit) {
+            return res.status(404).send()
+        }
+        if(!unit.owner.equals(user._id)) {
+            return res.status(401).send('Not Authorized')
+        }
+        await Unit.updateOne({_id: _id},req.body)
+        res.send("Updated Successfully")
+    }catch (e) {
+        console.log(e);
+        res.status(500).send(e.message)
+    }
+})
+//Delete Unit
 router.delete('/units/:id', auth, async (req, res) => {
     const user = req.user
     const _id = req.params.id
@@ -149,7 +166,7 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
     }
 })
 
-//Accept Invetation
+//Accept Invitation
 router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
     const invitationId = req.params.invitationId
     const user = req.user
@@ -181,7 +198,7 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
     }
 })
 
-//Decline Invetation
+//Decline Invitation
 router.post('/invitations/decline/:invitationId', auth, async (req, res) => {
     const invitationId = req.params.invitationId
     const user = req.user
