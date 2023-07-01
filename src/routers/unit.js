@@ -11,6 +11,8 @@ const router = new express.Router()
 router.post('/units', auth, async (req, res) => {
     const user = req.user
     
+    if(!req.body.name) return res.status(400).send({error:'Name is required'})
+
     try {
         const unit = new Unit(req.body)
         await unit.save()
@@ -29,7 +31,7 @@ router.post('/units', auth, async (req, res) => {
         res.status(201).send(unit)
     } catch (e) {
         console.log(e);
-        res.status(400).send(e.message)
+        res.status(400).send({error: e.message})
     }
 })
 
