@@ -48,12 +48,12 @@ const schema = new mongoose.Schema({
             ref: 'Resource'
         }
      ],
-    nodes: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Node'
-        }
-    ]
+    // nodes: [
+    //     {
+    //         type: mongoose.Schema.Types.ObjectId,
+    //         ref: 'Node'
+    //     }
+    // ]
 }, 
 {
     timestamps: true
@@ -71,11 +71,11 @@ schema.pre('deleteOne', {document: true, query: false}, async function(next) {
 
     await Resource.deleteMany({ parentNode: this._id });
 
-    const nodes = await Node.find({ parentNode:this._id });
+    // const nodes = await Node.find({ parentNode:this._id });
 
-    nodes.forEach(async res => {
-        await res.deleteOne();
-    })
+    // nodes.forEach(async res => {
+    //     await res.deleteOne();
+    // })
 
     next();
 })
