@@ -6,11 +6,9 @@ const dataSchema = new mongoose.Schema({
     text: {
         type: String
     },
-    file: {
+    imageUrl: {
         type: String
-    },
-    data:{}
-
+    }
 })
 const schema = new mongoose.Schema({
     name: {
@@ -18,10 +16,13 @@ const schema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    description: {
+        type: String,
+        trim: true
+    },
     type: {
         type: String,
-        required: true,
-        default: "MIX"  // MIX, TEXT, LINKS, FILES
+        required: true, //TEXT, LINKS, IMAGE, todo for each type make a viewer
     },
     data: dataSchema,
     parentNode: {

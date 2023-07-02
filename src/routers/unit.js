@@ -17,18 +17,19 @@ router.post('/units', auth, async (req, res) => {
         const unit = new Unit(req.body)
         await unit.save()
 
-        await unit.initRootNode();
+        // await unit.initRootNode();
 
         user.units = user.units.concat(unit._id)
         
         unit.owner = user._id;
-        unit.ownerName = user.name
+        unit.ownerName = user.name;
+
         unit.users = unit.users.concat(user._id)
-        unit.ownerName = user.name
+        
         await user.save()
         await unit.save()
 
-        res.status(201).send(unit)
+        res.status(200).send(unit)
     } catch (e) {
         console.log(e);
         res.status(400).send({error: e.message})
@@ -75,6 +76,8 @@ router.get('/units/:id', auth ,async (req, res) => {
         if(!unit.users.includes(user._id) && unit.private === true) {
             return res.status(401).send()
         }
+
+        await unit.populate('nodes');
 
         res.send(unit)
     } catch (e) {

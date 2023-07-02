@@ -37,18 +37,30 @@ const schema = new mongoose.Schema({
     invitations: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Invitation"
-    }]
+    }],
+    nodes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Node'
+        }
+    ]
 })
 
-schema.methods.initRootNode =  async function() {
-    const unit = this;
+// schema.methods.initRootNode =  async function() {
+//     const unit = this;
 
-    const node = new Node({
-        _id: unit._id,
-        name: "root",
-        parentUnit: unit._id
-    })
-    await node.save();
+//     const node = new Node({
+//         _id: unit._id,
+//         name: "root",
+//         parentUnit: unit._id
+//     })
+//     await node.save();
+// }
+
+schema.methods.isAllowedUser = async function(user) {
+    const unit = this
+    
+    return this.users.includes(user._id);
 }
 
 schema.pre('deleteOne', {document:true, query: false}, async function(next) {
@@ -63,9 +75,9 @@ schema.pre('deleteOne', {document:true, query: false}, async function(next) {
         await user.save()
     })
 
-    const root = await Node.findOne({ parentUnit:unit._id, name:'root' })
+    // const root = await Node.findOne({ parentUnit:unit._id, name:'root' })
 
-    await root.deleteOne()
+    // await root.deleteOne()
 
     next()
 })
