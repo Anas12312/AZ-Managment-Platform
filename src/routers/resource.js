@@ -23,6 +23,8 @@ router.post("/resource/:nodeId", auth, async(req, res) => {
 
         const resource = new Resource(req.body)
         resource.createdBy = user.id
+        resource.createdByName = user.name
+        resource.createdByImageUrl = user.imgUrl
         resource.parentNode = nodeId
         await resource.save()
 
