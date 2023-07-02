@@ -49,7 +49,13 @@ router.get('/nodes/:nodeId',auth, async (req, res) => {
         }
 
         await node.populate("resources")
-        res.send(node)
+
+        const resources = node.resources.map(res => {
+            if(res.createdBy == user.id) res.name = 'Me'
+            return res
+        })
+
+        res.send({...node.toJSON(), resources})
     } catch (e) {
         console.log(e);
         res.status(500).send()
