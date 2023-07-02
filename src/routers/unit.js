@@ -78,6 +78,7 @@ router.get('/units/:id', auth ,async (req, res) => {
         }
 
         await unit.populate('nodes');
+        await unit.populate('owner', {name: 1, _id: 1})
 
         res.send(unit)
     } catch (e) {
