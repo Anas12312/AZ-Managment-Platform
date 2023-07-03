@@ -48,14 +48,23 @@ router.get('/nodes/:nodeId',auth, async (req, res) => {
             return res.status(401).send({error: "You Dont Have Permission to modify this Unit"});
         }
 
-        await node.populate("resources")
-
-        const resources = node.resources.map(res => {
-            if(res.createdBy == user.id) res.name = 'Me'
-            return res
+        await node.populate({
+            path: 'resources',
+            populate: {
+                path: "createdBy",
+                select: {_id:1, name:1, imgUrl:1}
+            }
         })
 
-        res.send({...node.toJSON(), resources})
+        await node.populate('createdBy', {_id:1, name:1, imgUrl:1});
+
+        if(node.createdBy._id == user.id) node.createdBy.name = 'Me'
+
+        node.resources.forEach(res => {
+            if(res.createdBy._id == user.id) res.createdBy.name = 'Me';
+        })
+
+        res.send(node)
     } catch (e) {
         console.log(e);
         res.status(500).send()

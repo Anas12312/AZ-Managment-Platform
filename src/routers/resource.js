@@ -23,13 +23,13 @@ router.post("/resource/:nodeId", auth, async(req, res) => {
 
         const resource = new Resource(req.body)
         resource.createdBy = user.id
-        resource.createdByName = user.name
-        resource.createdByImageUrl = user.imgUrl
         resource.parentNode = nodeId
         await resource.save()
 
         node.resources = node.resources.concat(resource._id)
         await node.save()
+
+        await resource.populate('createdBy', {_id:1, name:1, imgUrl:1});
 
         res.status(201).send(resource)
     }catch(e) {
@@ -53,6 +53,8 @@ router.get("/resource/:id", auth, async (req, res) => {
         if(!node.isAllowedUser(user)) {
             return res.status(401).send("You Don't have permission to add to this node");
         }
+
+        await resource.populate('createdBy', {_id:1, name:1, imgUrl:1});
 
         return res.send(resource);
     } catch (error) {
