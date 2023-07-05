@@ -33,6 +33,28 @@ router.post('/nodes/:unitId', auth, async (req, res) => {
         return res.status(500).send()
     }
 })
+
+// Update Node
+router.put('/nodes/:nodeId', auth, async (req, res) => {
+    const user = req.user
+    const nodeId = req.params.nodeId
+    try {
+        const node = await Node.findById(nodeId);
+
+        if(!node) return res.status(404).send({error: 'node not found'})
+
+        node.color = req.body.color;
+        node.name = req.body.name;
+
+        await node.save()
+
+        res.status(200).send(node)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send()
+    }
+})
+
 // Get Node
 router.get('/nodes/:nodeId',auth, async (req, res) => {
     const _id = req.params.nodeId
