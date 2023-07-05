@@ -23,7 +23,7 @@ const schema = new mongoose.Schema({
     //Styling
     color: {
         type: String,
-        default: 'default'
+        default: 'purple'
     },
     icon: {
         type: Buffer,
