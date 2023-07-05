@@ -38,6 +38,21 @@ router.post("/resource/:nodeId", auth, async(req, res) => {
     }
 })
 
+//Get-Embed-Title 
+router.post("/oembed", auth, async (req,res) => {
+    try {
+        fetch(`https://iframe.ly/api/oembed?url=${req.body.url}&api_key=3a035af461215ce4c2a7e5`)
+        .then(res => res.json())
+        .then(result => {
+            res.send(result);
+        }).catch(err => {
+            res.status(400).send();
+        })
+    }catch(err) {
+        res.status(500).send();
+    }
+})
+
 // Get
 router.get("/resource/:id", auth, async (req, res) => {
     const id = req.params.id;
