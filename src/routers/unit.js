@@ -67,6 +67,7 @@ router.get('/units', auth, async (req, res) => {
 router.get('/units/:id', auth ,async (req, res) => {
     const _id = req.params.id
     const user = req.user
+    const search = req.query.search
     try {
         const unit = await Unit.findById(_id)
 
@@ -79,9 +80,18 @@ router.get('/units/:id', auth ,async (req, res) => {
 
         await unit.populate('nodes');
         await unit.populate('owner', {name: 1, _id: 1})
-
+        if(search) {
+            unit.nodes = unit.nodes.filter((node) => {
+                if(node.name.toLowerCase().includes(search.toLowerCase())){
+                    return true
+                }else {
+                    return false
+                }
+            })
+        }
         res.send(unit)
     } catch (e) {
+        console.log(e)
         res.status(500).send()
     }
 })

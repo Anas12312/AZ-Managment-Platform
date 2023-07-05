@@ -1,0 +1,289 @@
+{
+	"info": {
+		"_postman_id": "d80e0f8a-a790-4563-b9fe-18fe37788fd1",
+		"name": "Lists",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27150047",
+		"_collection_link": "https://speeding-space-838517.postman.co/workspace/My-Workspace~f808714f-1984-485e-8d78-dbaa0c0b91d8/collection/27150047-d80e0f8a-a790-4563-b9fe-18fe37788fd1?action=share&creator=27150047&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Create Circuit (ADMIN)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"HALF\",\r\n    \"note\": \"ana anas\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/circuit",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"circuit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE CIRCUIT (ADMIN)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/circuit/1",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"circuit",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Circuit",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"half wave\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/circuit/2",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"circuit",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Circuits",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/circuit",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"circuit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Search Circuits",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/list",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/list/3",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"list",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\" : \"listtt\",\r\n    \"note\" : \"asdasd\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/list/4",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"list",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get My Lists",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Search My Lists",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Toggle Fav",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/list/fav/4",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"list",
+						"fav",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Favs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/list/fav",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"list",
+						"fav"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/list/copy/2",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"list",
+						"copy",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

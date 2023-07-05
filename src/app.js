@@ -6,6 +6,7 @@ const unitRouter = require('./routers/unit')
 const nodeRouter = require('./routers/node')
 const accountRouter = require('./routers/account')
 const resourceRouter = require('./routers/resource')
+const fileRouter = require('./routers/file')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -18,6 +19,7 @@ app.use(userRouter)
 app.use(unitRouter)
 app.use(nodeRouter)
 app.use(resourceRouter)
+app.use(fileRouter)
 
 
 app.listen(port, () => {
