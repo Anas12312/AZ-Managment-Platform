@@ -55,6 +55,7 @@ router.get('/units', auth, async (req, res) => {
             })
             const response = {
                 units: units.units,
+                starred: user.starredUnits,
                 count
             }
             res.send(response)
@@ -295,6 +296,68 @@ router.get('/invitations/:id', auth, async (req,res) => {
     }catch(e) {
         console.log(e);
         res.status(500).send()
+    }
+})
+//Star Unit
+router.put("/units/star/:id", auth, async(req,res) => {
+    const unitId = req.params.id
+    const user = req.user
+    try{
+        const unit = await Unit.findById(unitId)
+        if(!unit) {
+            return res.status(404).send({
+                message: "Unit Not Found"
+            })
+        }
+        if(!user.units.includes(unitId)) {
+            return res.status(404).send({
+                message: "Unit Not Found"
+            })
+        }
+        if(user.starredUnits.includes(unitId)) {
+            return res.status(400).send({
+                message: "Already Starred"
+            })
+        }
+        user.starredUnits = user.starredUnits.concat(unitId)
+        user.save();
+        res.send({
+            message: "Starred Successfully"
+        })
+    }catch(e) {
+        res.status(500).send(e.message)
+    }
+})
+//Unstar Unit
+router.put("/units/unstar/:id", auth, async(req,res) => {
+    const unitId = req.params.id
+    const user = req.user
+    try{
+        const unit = await Unit.findById(unitId)
+        if(!unit) {
+            return res.status(404).send({
+                message: "Unit Not Found"
+            })
+        }
+        if(!user.units.includes(unitId)) {
+            return res.status(404).send({
+                message: "Unit Not Found"
+            })
+        }
+        if(!user.starredUnits.includes(unitId)) {
+            return res.status(400).send({
+                message: "Not Starred"
+            })
+        }
+        user.starredUnits = user.starredUnits.filter((unit) => {
+            return unit.toString() !== unitId
+        })
+        user.save();
+        res.send({
+            message: "Unstarred Successfully"
+        })
+    }catch(e) {
+        res.status(500).send(e.message)
     }
 })
 
