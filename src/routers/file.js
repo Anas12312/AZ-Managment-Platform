@@ -5,9 +5,13 @@ const AWS = require('aws-sdk')
 const multer = require('multer')
 const { readFileSync } = require('fs')
 
+const ftp = require('basic-ftp')
+const { Readable } = require('stream')
+const { randomUUID } = require('crypto')
+
 const router = new express.Router()
 
-router.post('/upload', async (req, res) => {
+router.post('/upload/old', async (req, res) => {
     try {
 
         const img = await fetch('https://post.healthline.com/wp-content/uploads/2020/09/tomatoes-1200x628-facebook-1200x628.jpg')
@@ -33,6 +37,27 @@ router.post('/upload', async (req, res) => {
     } catch (e) {
         console.log(e);
         res.send('a7a')
+    }
+})
+
+router.post('/upload/', async (req, res) => {
+    try {
+
+        const img = req.files.file
+        const client = new ftp.Client()
+        await client.access({
+            host: "ftp.sirv.com",
+            user: "zizo.zoom.z0@gmail.com+nopheate",
+            password: "zyad7890",
+        })
+
+        const uuid = randomUUID();
+
+        await client.upload(Readable.from(img.data), uuid )
+        res.send({message: 'https://nopheate.sirv.com/'+uuid})
+
+    } catch (e) {
+        res.status(500).send()
     }
 })
 
