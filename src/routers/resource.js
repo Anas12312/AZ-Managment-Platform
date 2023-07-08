@@ -100,6 +100,7 @@ router.delete("/resource/:id", auth, async (req, res) => {
     }
 })
 
+//Update
 router.put("/resource/:id", auth, async (req,res) => {
     const id = req.params.id;
     const user = req.user;
@@ -114,10 +115,7 @@ router.put("/resource/:id", auth, async (req,res) => {
             return res.status(401).send("You Don't have permission to add to this node");
         }
 
-        resource.name = req.body.name
-        resource.data = req.body.data
-
-        await resource.save()
+        await Resource.updateOne({_id: id}, req.body)
 
         res.send("Updated Successfully");
     } catch (error) {
