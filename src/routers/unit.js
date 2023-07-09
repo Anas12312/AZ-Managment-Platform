@@ -63,6 +63,32 @@ router.get('/units', auth, async (req, res) => {
             res.status(500).send()
         }
 })
+// Get Starred Units for User
+router.get('/units/starred', auth, async (req, res) => {
+    const user = req.user
+        const pageOptions = {
+            page: parseInt(req.query.page, 10) || 0,
+            limit: parseInt(req.query.limit, 10) || 10
+        }
+        try {
+            //const units = await user.populate('units');
+            const count = user.starredUnits.length
+            const units = await user.populate({
+                path: 'starredUnits',
+                options: {
+                    skip: pageOptions.page * pageOptions.limit,
+                    limit: pageOptions.limit
+                }
+            })
+            const response = {
+                units: units.starredUnits,
+                count
+            }
+            res.send(response)
+        } catch (e) {
+            res.status(500).send()
+        }
+})
 
 //GET Unit by Id
 router.get('/units/:id', auth ,async (req, res) => {
