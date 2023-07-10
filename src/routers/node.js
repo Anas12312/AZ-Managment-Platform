@@ -74,7 +74,7 @@ router.get('/nodes/:nodeId',auth, async (req, res) => {
             path: 'resources',
             populate: {
                 path: "createdBy",
-                select: {_id:1, name:1, imgUrl:1}
+                select: {_id:1, name:1, imgUrl:1, username:1}
             }
         })
 

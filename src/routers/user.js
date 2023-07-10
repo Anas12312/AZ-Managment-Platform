@@ -5,10 +5,21 @@ const auth = require('../middleware/auth')
 
 router.get('/users', async (req, res) => {
     try {
-        const users = await User.find({})
-        res.send(users)
+        if(req.query.search) {
+            const users = await User.find({
+                $or: [
+                    {name_lower: { $regex: req.query.search.toLowerCase()}},
+                    {username_lower: { $regex: req.query.search.toLowerCase()}},
+                    {email: { $regex: req.query.search.toLowerCase()}}
+                ]
+            }).limit(7)
+            return res.send(users)
+        }else {
+            const users = await User.find({})
+            return res.send(users)
+        }
     } catch (e) {
-        res.status(500).send()
+        res.status(500).send(e)
     }
 })
 router.get('/profile', auth, async (req, res) => {

@@ -9,9 +9,19 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    name_lower: {
+        type: String,
+        trim: true,
+        lowercase: true
+    },
     username: {
         type: String,
         required: true,
+        trim: true,
+        unique: true
+    },
+    username_lower: {
+        type: String,
         trim: true,
         unique: true
     },
@@ -99,7 +109,8 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
 userSchema.pre('save', async function(next) {
     const user = this
-
+    user.name_lower = user.name.toLowerCase()
+    user.username_lower = user.username.toLowerCase()
     if(user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8)
     }
