@@ -3,18 +3,6 @@ const User = require('../models/user')
 const router = new express.Router()
 const auth = require('../middleware/auth')
 
-//CRUD
-router.post('/users', async (req, res) => {
-    const user = new User(req.body)
-
-    try {
-        await user.save()
-        res.status(201).send(user)
-    } catch (e) {
-        res.status(400).send(e)
-    }
-})
-
 router.get('/users', async (req, res) => {
     try {
         const users = await User.find({})
@@ -23,12 +11,15 @@ router.get('/users', async (req, res) => {
         res.status(500).send()
     }
 })
-
-router.get('/users/:id', async (req, res) => {
-    const _id = req.params.id
+router.get('/profile', auth, async (req, res) => {
+    const user = req.user
+    return res.send(user)
+})
+router.get('/users/:username', async (req, res) => {
+    const username = req.params.username
 
     try {
-        const user = await User.findById(_id)
+        const user = await User.findOne({username: username})
 
         if (!user) {
             return res.status(404).send()
