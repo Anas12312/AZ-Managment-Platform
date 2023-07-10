@@ -53,6 +53,9 @@ router.get('/units', auth, async (req, res) => {
                     limit: pageOptions.limit
                 }
             })
+            for(let i=0;i<count;i++) {
+                await units.units[i].populate('owner', {name: 1, _id: 1, username: 1})
+            }
             const response = {
                 units: units.units,
                 starred: user.starredUnits,
@@ -80,6 +83,9 @@ router.get('/units/starred', auth, async (req, res) => {
                     limit: pageOptions.limit
                 }
             })
+            for(let i=0;i<count;i++) {
+                await units.starredUnits[i].populate('owner', {name: 1, _id: 1, username: 1})
+            }
             const response = {
                 units: units.starredUnits,
                 count
@@ -106,7 +112,7 @@ router.get('/units/:id', auth ,async (req, res) => {
         }
 
         await unit.populate('nodes');
-        await unit.populate('owner', {name: 1, _id: 1})
+        await unit.populate('owner', {name: 1, _id: 1, username: 1})
         if(search) {
             unit.nodes = unit.nodes.filter((node) => {
                 if(node.name.toLowerCase().includes(search.toLowerCase())){
