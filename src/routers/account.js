@@ -38,16 +38,19 @@ router.post('/account/signup', async (req, res) => {
     const user = new User(req.body)
 
     try {
-        const exists = await User.findOne({email: req.body.email})
-        if(exists) {
+        const emailExists = await User.findOne({email: req.body.email})
+        if(emailExists) {
             return res.status(400).send({error : "Email already in user"})
         }
-
+        const userNameExists = await User.findOne({username: req.body.username})
+        if(userNameExists) {
+            return res.status(400).send({error : "This Username is Already Taken"})
+        }
         await user.save()
         const token = await user.generateAuthToken()
         res.status(201).send({ user, token })
     } catch (e) {
-        res.status(400).send({error: e.message})
+        res.status(500).send({error: e.message})
     }
 })
 
