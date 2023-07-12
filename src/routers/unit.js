@@ -392,6 +392,20 @@ router.put("/units/unstar/:id", auth, async(req,res) => {
         res.status(500).send(e.message)
     }
 })
-
+// get Unit's users
+router.get('/units/users/:id',async (req, res)=>{
+    const id = req.params.id
+    const unit = await Unit.findById(id)
+    if(!unit) {
+        return res.status(404).send({message: "Unit Not Found"})
+    }
+    try {
+        await unit.populate('users')
+        await unit.populate('owner')
+        res.send(unit)
+    }catch(e) {
+        res.status(500).send(e.message)
+    }
+})
 
 module.exports = router
