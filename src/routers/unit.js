@@ -4,6 +4,7 @@ const User = require('../models/user')
 const Unit = require('../models/unit')
 const Node = require('../models/node')
 const Invitation = require('../models/invitation')
+const { userInfo } = require('os')
 
 const router = new express.Router()
 
@@ -198,7 +199,8 @@ router.post("/units/invite/:invitedUserId/:unitId", auth, async (req, res) => {
         const invitation = new Invitation({
             invitedBy: user._id,
             invited: invitedUser._id,
-            unit: unit._id
+            unit: unit._id,
+            status: 'PENDING'
         })
 
         await invitation.save()
@@ -237,9 +239,9 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
 
         invitation.status = 'ACCEPTED'
 
-        unit.save()
-        user.save()
-        invitation.save()
+        await unit.save()
+        await user.save()
+        await invitation.save()
 
         res.send('Accepted')
     } catch (error) {
@@ -485,6 +487,10 @@ router.delete('/units/users/:id/:invitationId', auth, async (req, res) => {
         if(invetation.status === 'ACCEPTED') {
             unit.users.filter(user => !user.equals(invetation.invited))
             await unit.save()
+
+            const userDb = await User.findById(user._id)
+            userDb.units.filter(unit => !unit.equals(unitId))
+            await userDb.save()
         }
 
         await invetation.deleteOne()
