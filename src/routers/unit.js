@@ -10,8 +10,8 @@ const router = new express.Router()
 //CRUD
 router.post('/units', auth, async (req, res) => {
     const user = req.user
-    
-    if(!req.body.name) return res.status(400).send({error:'Name is required'})
+
+    if (!req.body.name) return res.status(400).send({ error: 'Name is required' })
 
     try {
         const unit = new Unit(req.body)
@@ -20,84 +20,84 @@ router.post('/units', auth, async (req, res) => {
         // await unit.initRootNode();
 
         user.units = user.units.concat(unit._id)
-        
+
         unit.owner = user._id;
         unit.ownerName = user.name;
 
         unit.users = unit.users.concat(user._id)
-        
+
         await user.save()
         await unit.save()
 
         res.status(200).send(unit)
     } catch (e) {
         console.log(e);
-        res.status(400).send({error: e.message})
+        res.status(400).send({ error: e.message })
     }
 })
 
 // Get All Units for User
 router.get('/units', auth, async (req, res) => {
     const user = req.user
-        const pageOptions = {
-            page: parseInt(req.query.page, 10) || 0,
-            limit: parseInt(req.query.limit, 10) || 10
-        }
-        try {
-            //const units = await user.populate('units');
-            const count = user.units.length
-            const units = await user.populate({
-                path: 'units',
-                options: {
-                    skip: pageOptions.page * pageOptions.limit,
-                    limit: pageOptions.limit
-                }
-            })
-            for(let i=0;i<count;i++) {
-                await units.units[i].populate('owner', {name: 1, _id: 1, username: 1})
+    const pageOptions = {
+        page: parseInt(req.query.page, 10) || 0,
+        limit: parseInt(req.query.limit, 10) || 10
+    }
+    try {
+        //const units = await user.populate('units');
+        const count = user.units.length
+        const units = await user.populate({
+            path: 'units',
+            options: {
+                skip: pageOptions.page * pageOptions.limit,
+                limit: pageOptions.limit
             }
-            const response = {
-                units: units.units,
-                starred: user.starredUnits,
-                count
-            }
-            res.send(response)
-        } catch (e) {
-            res.status(500).send()
+        })
+        for (let i = 0; i < count; i++) {
+            await units.units[i].populate('owner', { name: 1, _id: 1, username: 1 })
         }
+        const response = {
+            units: units.units,
+            starred: user.starredUnits,
+            count
+        }
+        res.send(response)
+    } catch (e) {
+        res.status(500).send()
+    }
 })
 // Get Starred Units for User
 router.get('/units/starred', auth, async (req, res) => {
     const user = req.user
-        const pageOptions = {
-            page: parseInt(req.query.page, 10) || 0,
-            limit: parseInt(req.query.limit, 10) || 10
-        }
-        try {
-            //const units = await user.populate('units');
-            const count = user.starredUnits.length
-            const units = await user.populate({
-                path: 'starredUnits',
-                options: {
-                    skip: pageOptions.page * pageOptions.limit,
-                    limit: pageOptions.limit
-                }
-            })
-            for(let i=0;i<count;i++) {
-                await units.starredUnits[i].populate('owner', {name: 1, _id: 1, username: 1})
+    const pageOptions = {
+        page: parseInt(req.query.page, 10) || 0,
+        limit: parseInt(req.query.limit, 10) || 10
+    }
+    try {
+        //const units = await user.populate('units');
+        const count = user.starredUnits.length
+        const units = await user.populate({
+            path: 'starredUnits',
+            options: {
+                skip: pageOptions.page * pageOptions.limit,
+                limit: pageOptions.limit
             }
-            const response = {
-                units: units.starredUnits,
-                count
-            }
-            res.send(response)
-        } catch (e) {
-            res.status(500).send()
+        })
+        for (let i = 0; i < count; i++) {
+            await units.starredUnits[i].populate('owner', { name: 1, _id: 1, username: 1 })
         }
+        const response = {
+            units: units.starredUnits,
+            count
+        }
+        res.send(response)
+    } catch (e) {
+        res.status(500).send()
+    }
 })
 
 //GET Unit by Id
-router.get('/units/:id', auth ,async (req, res) => {
+router.get('/units/:id', auth, async (req, res) => {
     const _id = req.params.id
     const user = req.user
     const search = req.query.search
@@ -107,17 +107,17 @@ router.get('/units/:id', auth ,async (req, res) => {
         if (!unit) {
             return res.status(404).send()
         }
-        if(!unit.users.includes(user._id) && unit.private === true) {
+        if (!unit.users.includes(user._id) && unit.private === true) {
             return res.status(401).send()
         }
 
         await unit.populate('nodes');
-        await unit.populate('owner', {name: 1, _id: 1, username: 1})
-        if(search) {
+        await unit.populate('owner', { name: 1, _id: 1, username: 1 })
+        if (search) {
             unit.nodes = unit.nodes.filter((node) => {
-                if(node.name.toLowerCase().includes(search.toLowerCase())){
+                if (node.name.toLowerCase().includes(search.toLowerCase())) {
                     return true
-                }else {
+                } else {
                     return false
                 }
             })
@@ -130,20 +130,20 @@ router.get('/units/:id', auth ,async (req, res) => {
 })
 
 //Update Unit
-router.put('/units/:id', auth, async(req, res) => {
+router.put('/units/:id', auth, async (req, res) => {
     const user = req.user
     const _id = req.params.id
     try {
         const unit = await Unit.findById(_id)
-        if(!unit) {
+        if (!unit) {
             return res.status(404).send()
         }
-        if(!unit.owner.equals(user._id)) {
+        if (!unit.owner.equals(user._id)) {
             return res.status(401).send('Not Authorized')
         }
-        await Unit.updateOne({_id: _id},req.body)
+        await Unit.updateOne({ _id: _id }, req.body)
         res.send("Updated Successfully")
-    }catch (e) {
+    } catch (e) {
         console.log(e);
         res.status(500).send(e.message)
     }
@@ -157,7 +157,7 @@ router.delete('/units/:id', auth, async (req, res) => {
         if (!unit) {
             return res.status(404).send()
         }
-        if(!unit.owner.equals(user._id)) {
+        if (!unit.owner.equals(user._id)) {
             return res.status(401).send("You Are Not the Owner")
         }
         await unit.deleteOne()
@@ -169,7 +169,7 @@ router.delete('/units/:id', auth, async (req, res) => {
 })
 
 //Invite users to unit
-router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
+router.post("/units/invite/:invitedUserId/:unitId", auth, async (req, res) => {
     const user = req.user
     const invitedUserId = req.params.invitedUserId
     const unitId = req.params.unitId
@@ -177,21 +177,21 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
         const unit = await Unit.findById(unitId)
         const invitedUser = await User.findById(invitedUserId)
 
-        if(!invitedUser) {
+        if (!invitedUser) {
             return res.status(404).send('User not found')
         }
-        if(!unit) {
+        if (!unit) {
             return res.status(404).send('Unit not found')
         }
-        if(!unit.users.includes(user._id)) {
+        if (!unit.users.includes(user._id)) {
             return res.status(401).send()
         }
-        if(unit.users.includes(invitedUserId)) {
+        if (unit.users.includes(invitedUserId)) {
             return res.status(400).send("This User Already Exists in this Unit")
         }
 
-        const exists = await Invitation.findOne({ unit:unit._id, invited:invitedUser._id })
-        if(exists) {
+        const exists = await Invitation.findOne({ unit: unit._id, invited: invitedUser._id })
+        if (exists) {
             return res.status(400).send("Already Invited")
         }
 
@@ -203,14 +203,14 @@ router.post("/units/invite/:invitedUserId/:unitId", auth,  async(req, res) => {
 
         await invitation.save()
 
-        unit.invitations = unit.invitations.concat( invitation._id )
-        invitedUser.invitations = invitedUser.invitations.concat( invitation._id )
+        unit.invitations = unit.invitations.concat(invitation._id)
+        invitedUser.invitations = invitedUser.invitations.concat(invitation._id)
 
         await unit.save()
         await invitedUser.save()
 
         res.send(invitation)
-    }catch(e) {
+    } catch (e) {
         res.status(500).send()
     }
 })
@@ -222,21 +222,21 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
 
     try {
         const invitation = await Invitation.findById(invitationId)
-        if(!invitation) {
-            res.status(404).send('Invitation not found')
+        if (!invitation) {
+            return res.status(404).send('Invitation not found')
         }
-        if(user._id.toString() !== invitation.invited.toString() ) {
-            res.status(401).send('Your not the invited user')
+        if (!invitation.invited.equals(user._id)) {
+            return res.status(401).send('Your not the invited user')
         }
-        
-        
+
+
         const unit = await Unit.findById(invitation.unit)
         unit.users = unit.users.concat(user._id)
 
         user.units = user.units.concat(unit._id)
 
         invitation.status = 'ACCEPTED'
-        
+
         unit.save()
         user.save()
         invitation.save()
@@ -254,15 +254,15 @@ router.post('/invitations/decline/:invitationId', auth, async (req, res) => {
 
     try {
         const invitation = await Invitation.findById(invitationId)
-        if(!invitation) {
+        if (!invitation) {
             res.status(404).send('Invitation not found')
         }
-        if(user._id.toString() !== invitation.invited.toString() ) {
+        if (user._id.toString() !== invitation.invited.toString()) {
             res.status(401).send('Your not the invited user')
         }
-        
+
         invitation.status = 'DECLINED'
-        
+
         invitation.save()
 
         res.send('Decline')
@@ -273,80 +273,80 @@ router.post('/invitations/decline/:invitationId', auth, async (req, res) => {
 
 
 // Get All Invitations (User)
-router.get('/invitations', auth, async (req,res) => {
+router.get('/invitations', auth, async (req, res) => {
     const user = req.user
     const filter = req.query.filter
     try {
         await user.populate('invitations')
         let invitations = user.invitations
-        if(!user) {
+        if (!user) {
             return res.status(404).send()
         }
 
-        if(filter === "a") {
+        if (filter === "a") {
             invitations = invitations.filter((invitation) => invitation.status === "ACCEPTED")
         }
-        if(filter === "d") {
+        if (filter === "d") {
             invitations = invitations.filter((invitation) => invitation.status === "DECLINED")
         }
-        if(filter === "p") {
+        if (filter === "p") {
             invitations = invitations.filter((invitation) => invitation.status === "PENDING")
         }
 
-        
+
         res.send(invitations)
-    }catch(e) {
+    } catch (e) {
         console.log(e);
         res.status(500).send()
     }
 })
 
 // Get All Invitations (Unit)
-router.get('/invitations/:id', auth, async (req,res) => {
+router.get('/invitations/:id', auth, async (req, res) => {
     const unitId = req.params.id
     const filter = req.query.filter
     try {
         const unit = await Unit.findById(unitId)
         await unit.populate('invitations')
         let invitations = unit.invitations
-        if(!unit) {
+        if (!unit) {
             return res.status(404).send()
         }
 
-        if(filter === "a") {
+        if (filter === "a") {
             invitations = invitations.filter((invitation) => invitation.status === "ACCEPTED")
         }
-        if(filter === "d") {
+        if (filter === "d") {
             invitations = invitations.filter((invitation) => invitation.status === "DECLINED")
         }
-        if(filter === "p") {
+        if (filter === "p") {
             invitations = invitations.filter((invitation) => invitation.status === "PENDING")
         }
 
-        
+
         res.send(invitations)
-    }catch(e) {
+    } catch (e) {
         console.log(e);
         res.status(500).send()
     }
 })
 //Star Unit
-router.put("/units/star/:id", auth, async(req,res) => {
+router.put("/units/star/:id", auth, async (req, res) => {
     const unitId = req.params.id
     const user = req.user
-    try{
+    try {
         const unit = await Unit.findById(unitId)
-        if(!unit) {
+        if (!unit) {
             return res.status(404).send({
                 message: "Unit Not Found"
             })
         }
-        if(!user.units.includes(unitId)) {
+        if (!user.units.includes(unitId)) {
             return res.status(404).send({
                 message: "Unit Not Found"
             })
         }
-        if(user.starredUnits.includes(unitId)) {
+        if (user.starredUnits.includes(unitId)) {
             return res.status(400).send({
                 message: "Already Starred"
             })
@@ -356,27 +356,27 @@ router.put("/units/star/:id", auth, async(req,res) => {
         res.send({
             message: "Starred Successfully"
         })
-    }catch(e) {
+    } catch (e) {
         res.status(500).send(e.message)
     }
 })
 //Unstar Unit
-router.put("/units/unstar/:id", auth, async(req,res) => {
+router.put("/units/unstar/:id", auth, async (req, res) => {
     const unitId = req.params.id
     const user = req.user
-    try{
+    try {
         const unit = await Unit.findById(unitId)
-        if(!unit) {
+        if (!unit) {
             return res.status(404).send({
                 message: "Unit Not Found"
             })
         }
-        if(!user.units.includes(unitId)) {
+        if (!user.units.includes(unitId)) {
             return res.status(404).send({
                 message: "Unit Not Found"
             })
         }
-        if(!user.starredUnits.includes(unitId)) {
+        if (!user.starredUnits.includes(unitId)) {
             return res.status(400).send({
                 message: "Not Starred"
             })
@@ -388,24 +388,112 @@ router.put("/units/unstar/:id", auth, async(req,res) => {
         res.send({
             message: "Unstarred Successfully"
         })
-    }catch(e) {
+    } catch (e) {
         res.status(500).send(e.message)
     }
 })
 // get Unit's users
-router.get('/units/users/:id',async (req, res)=>{
+router.get('/units/users/:id', auth, async (req, res) => {
     const id = req.params.id
-    const unit = await Unit.findById(id)
-    if(!unit) {
-        return res.status(404).send({message: "Unit Not Found"})
-    }
+    const search = req.query.search
     try {
-        await unit.populate('users')
-        await unit.populate('owner')
-        res.send(unit)
-    }catch(e) {
+        const unit = await Unit.findById(id).select({
+            _id: 1,
+            name: 1,
+            description: 1,
+            owner: 1
+        })
+
+        if (!unit) {
+            return res.status(404).send({ message: "Unit Not Found" })
+        }
+
+        const invitations = await Invitation.find({ unit: unit._id })
+
+        const users = await Promise.all(invitations.map(async (inv) => {
+            await inv.populate({
+                path: 'invited',
+                select: {
+                    _id: 1,
+                    name: 1,
+                    username: 1,
+                    email: 1,
+                    imgUrl: 1
+                }
+            })
+
+            return {
+                ...inv.invited.toObject(),
+                status: inv.status,
+                invetationId: inv._id
+            }
+        }))
+
+        await unit.populate({
+            path: 'owner',
+            select: {
+                _id: 1,
+                name: 1,
+                username: 1,
+                email: 1,
+                imgUrl: 1
+            }
+        })
+
+        let usersDto = [{
+            ...unit.owner.toObject(),
+            status:'OWNER'
+        }].concat(users)
+
+        if(search) {
+            usersDto = usersDto.filter(user => (user.name.toLowerCase().includes(search)) || (user.email.toLowerCase().includes(search)) || (user.username.toLowerCase().includes(search)))
+        }
+
+        res.send({
+            unit,
+            users:usersDto
+        })
+    } catch (e) {
         res.status(500).send(e.message)
     }
 })
+
+//Remove user from Unit 
+router.delete('/units/users/:id/:invitationId', auth, async (req, res) => {
+    const unitId = req.params.id
+    const invitationId = req.params.invitationId
+    const user = req.user
+    try {
+        const unit = await Unit.findById(unitId)
+        if (!unit) {
+            return res.status(404).send()
+        }
+
+        if (!unit.owner.equals(user._id)) {
+            return res.status(401).send({error: "You Are Not the Owner"})
+        }
+
+        const invetation = await Invitation.findById(invitationId)
+        if(!invetation) {
+            return res.status(404).send({error: 'Inivetation not found'})
+        }
+
+        // if(invetation.status === 'OWNER') {
+        //     return res.status(400).send({errror: 'Cannot remove your self from your unit'})
+        // }
+
+        if(invetation.status === 'ACCEPTED') {
+            unit.users.filter(user => !user.equals(invetation.invited))
+            await unit.save()
+        }
+
+        await invetation.deleteOne()
+
+        return res.send({message: 'Removed successfully'})
+    }catch(err) {
+        console.log(err);
+        return res.status(500).send({errror: err.message})
+    }
+}) 
 
 module.exports = router
