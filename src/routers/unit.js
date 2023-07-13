@@ -363,24 +363,36 @@ router.get('/invitations', auth, async (req, res) => {
     const user = req.user
     const filter = req.query.filter
     try {
-        await user.populate('invitations')
-        let invitations = user.invitations
-        if (!user) {
-            return res.status(404).send()
-        }
+        const invs = await Invitation.find({invited:user._id})
 
-        if (filter === "a") {
-            invitations = invitations.filter((invitation) => invitation.status === "ACCEPTED")
-        }
-        if (filter === "d") {
-            invitations = invitations.filter((invitation) => invitation.status === "DECLINED")
-        }
-        if (filter === "p") {
-            invitations = invitations.filter((invitation) => invitation.status === "PENDING")
-        }
+        const invsResponse = await Promise.all(invs.map(async inv => {
+            await inv.populate({
+                path: 'invitedBy',
+                select: {
+                    _id: 1,
+                    name: 1,
+                    username: 1,
+                    email: 1
+                }
+            })
+            await inv.populate({
+                path: 'unit',
+                select: {
+                    name: 1
+                }
+            })
 
+            const res = {
+                unit: inv.unit,
+                invitedBy: inv.invitedBy,
+                date: inv.date,
+                _id: inv._id
+            }
+            
+            return res
+        }))
 
-        res.send(invitations)
+        res.send(invsResponse)
     } catch (e) {
         console.log(e);
         res.status(500).send()
