@@ -45,7 +45,6 @@ router.get('/units', auth, async (req, res) => {
         limit: parseInt(req.query.limit, 10) || 10
     }
     try {
-        //const units = await user.populate('units');
         const count = user.units.length
         const units = await user.populate({
             path: 'units',
@@ -61,6 +60,26 @@ router.get('/units', auth, async (req, res) => {
             units: units.units,
             starred: user.starredUnits,
             count
+        }
+        res.send(response)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send()
+    }
+})
+// Get All Units for User (Search)
+router.get('/units/search/:search', auth, async (req, res) => {
+    const user = req.user
+    const search = req.params.search
+    try {
+        await user.populate({
+            path: 'units',
+        })
+        const units = user.units.filter((unit) => {
+            return unit.name.trim().toLowerCase().includes(search.toLowerCase().trim())
+        })
+        const response = {
+            units: units,
         }
         res.send(response)
     } catch (e) {
