@@ -15,8 +15,6 @@ router.get('/users', async (req, res) => {
                 ]
             }).limit(7)
 
-
-
             return res.send(users)
         }else {
             const users = await User.find({})

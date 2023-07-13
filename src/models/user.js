@@ -120,12 +120,14 @@ userSchema.pre('save', async function(next) {
 
 userSchema.pre('updateOne', async function(next) {
     const user = this
+    
     if(user.name){
         user.name_lower = user.name.toLowerCase()
     }
     if(user.username) {
         user.username_lower = user.username.toLowerCase()
     }
+
     next()
 })
 
