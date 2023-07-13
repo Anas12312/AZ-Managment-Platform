@@ -372,7 +372,8 @@ router.get('/invitations', auth, async (req, res) => {
                     _id: 1,
                     name: 1,
                     username: 1,
-                    email: 1
+                    email: 1,
+                    imgUrl: 1
                 }
             })
             await inv.populate({
