@@ -64,6 +64,7 @@ router.get('/units', auth, async (req, res) => {
         }
         res.send(response)
     } catch (e) {
+        console.log(e)
         res.status(500).send()
     }
 })
@@ -220,31 +221,35 @@ router.post("/units/invite/:invitedUserId/:unitId", auth, async (req, res) => {
 //Accept Invitation
 router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
     const invitationId = req.params.invitationId
-    const user = req.user
+    const currentUser = req.user
 
     try {
         const invitation = await Invitation.findById(invitationId)
         if (!invitation) {
             return res.status(404).send('Invitation not found')
         }
-        if (!invitation.invited.equals(user._id)) {
+        if (!invitation.invited.equals(currentUser._id)) {
             return res.status(401).send('Your not the invited user')
         }
 
 
         const unit = await Unit.findById(invitation.unit)
         unit.users = unit.users.concat(user._id)
-
+        const user = await User.findById(invitation.user)
         user.units = user.units.concat(unit._id)
 
         invitation.status = 'ACCEPTED'
 
+        unit.invitations = unit.invitations.filter(inv => !inv.equals(invitation._id))
         await unit.save()
+
+        user.invitations = user.invitations.filter(inv => !inv.equals(invitation._id))
         await user.save()
-        await invitation.save()
+        await invitation.deleteOne()
 
         res.send('Accepted')
     } catch (error) {
+        console.log(error)
         res.status(500).send()
     }
 })
@@ -252,23 +257,31 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
 //Decline Invitation
 router.post('/invitations/decline/:invitationId', auth, async (req, res) => {
     const invitationId = req.params.invitationId
-    const user = req.user
+    const currentUser = req.user
 
     try {
         const invitation = await Invitation.findById(invitationId)
         if (!invitation) {
             res.status(404).send('Invitation not found')
         }
-        if (user._id.toString() !== invitation.invited.toString()) {
+        if (currentUser._id.toString() !== invitation.invited.toString()) {
             res.status(401).send('Your not the invited user')
         }
 
         invitation.status = 'DECLINED'
 
-        invitation.save()
+        const unit = await Unit.findById(invitation.unit)   
+        unit.invitations = unit.invitations.filter(inv => !inv.equals(invitation._id))
+        await unit.save()
+    
+        const user = await User.findById(invitation.invited)
+        user.invitations = user.invitations.filter(inv => !inv.equals(invitation._id))
+        await user.save()
+        await invitation.deleteOne()
 
-        res.send('Decline')
+        res.send('Declined')
     } catch (error) {
+        console.log(error)
         res.status(500).send()
     }
 })
@@ -427,7 +440,7 @@ router.get('/units/users/:id', auth, async (req, res) => {
             return {
                 ...inv.invited.toObject(),
                 status: inv.status,
-                invetationId: inv._id
+                invitationId: inv._id
             }
         }))
 
@@ -459,42 +472,66 @@ router.get('/units/users/:id', auth, async (req, res) => {
         res.status(500).send(e.message)
     }
 })
-
-//Remove user from Unit 
-router.delete('/units/users/:id/:invitationId', auth, async (req, res) => {
-    const unitId = req.params.id
+//Remove Pending User
+router.delete('/units/users/:invitationId', auth, async (req,res) => {
     const invitationId = req.params.invitationId
-    const user = req.user
+    const currentUser = req.user
+    try {
+        const invitation = await Invitation.findById(invitationId)
+        if(!invitation) {
+            res.status(404).send({message: "Invitations Doesn't Exist"})
+        }
+        const unit = await Unit.findById(invitation.unit)
+        if(!unit) {
+            invitation.deleteOne()
+            res.status(400).send("This unit no longer exists")
+        }
+        if(unit.owner != currentUser.id) {
+            res.status(401).send("Unauthorized")
+        }
+        unit.invitations = unit.invitations.filter(inv => !inv.equals(invitation._id))
+        await unit.save()
+    
+        const user = await User.findById(invitation.invited)
+        user.invitations = user.invitations.filter(inv => !inv.equals(invitation._id))
+        await user.save()
+        await invitation.deleteOne()
+        res.send({message: "Deleted Succesfully"})
+    }catch(e) {
+        res.status(500).send(e)
+    }
+})
+//Remove user from Unit 
+router.delete('/units/users/:userId/:unitId', auth, async (req, res) => {
+    const unitId = req.params.unitId
+    const userId = req.params.userId
+    const currentUser = req.user
     try {
         const unit = await Unit.findById(unitId)
         if (!unit) {
-            return res.status(404).send()
+            return res.status(404).send({message:"Unit Not Found"})
         }
-
-        if (!unit.owner.equals(user._id)) {
-            return res.status(401).send({error: "You Are Not the Owner"})
+        const user = await User.findById(userId)
+        if(!unit.owner.equals(currentUser._id)) {
+            return res.status(401).send({message:"unauthorized"})
         }
-
-        const invetation = await Invitation.findById(invitationId)
-        if(!invetation) {
-            return res.status(404).send({error: 'Inivetation not found'})
+        if(!user) {
+            return res.status(404).send({message:"User Not Found"})
         }
-
-        // if(invetation.status === 'OWNER') {
-        //     return res.status(400).send({errror: 'Cannot remove your self from your unit'})
-        // }
-
-        if(invetation.status === 'ACCEPTED') {
-            unit.users.filter(user => !user.equals(invetation.invited))
-            await unit.save()
-
-            const userDb = await User.findById(user._id)
-            userDb.units.filter(unit => !unit.equals(unitId))
-            await userDb.save()
+        if(!unit.users.includes(userId)) {
+            return res.status(400).send({message:"This User is not a Member of this Unit"})
         }
-
-        await invetation.deleteOne()
-
+        unit.users = unit.users.filter((user) => {
+            return user.toString() != (userId)
+        })
+        user.units = user.units.filter((unit) => {
+            return unit.toString() != (unitId)
+        })
+        user.starredUnits = user.starredUnits.filter((unit) => {
+            return unit.toString() != (unitId)
+        })
+        await unit.save()
+        await user.save()
         return res.send({message: 'Removed successfully'})
     }catch(err) {
         console.log(err);
