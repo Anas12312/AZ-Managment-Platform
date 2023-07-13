@@ -25,19 +25,19 @@ const schema = new mongoose.Schema({
     }
 }) 
 
-schema.pre('deleteOne', {document:true, query: false}, async function(next) {
-    const invetation = this
+// schema.pre('deleteOne', {document:true, query: false}, async function(next) {
+//     const invetation = this
 
-    const unit = await Unit.findById(invetation.unit)
-    unit.invitations = unit.invitations.filter(inv => !inv.equals(this._id))
-    await unit.save()
+//     const unit = await Unit.findById(invetation.unit)   
+//     unit.invitations = unit.invitations.filter(inv => !inv.equals(this._id))
+//     await unit.save()
 
-    const user = await User.findById(invetation.invited)
-    user.invitations = user.invitations.filter(inv => !inv.equals(this._id))
-    await user.save()
+//     const user = await User.findById(invetation.invited)
+//     user.invitations = user.invitations.filter(inv => !inv.equals(this._id))
+//     await user.save()
 
-    next()
-})
+//     next()
+// })
 
 const Invitation = mongoose.model('Invitation', schema)
 
