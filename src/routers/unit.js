@@ -237,6 +237,58 @@ router.post("/units/invite/:invitedUserId/:unitId", auth, async (req, res) => {
     }
 })
 
+router.post("/units/invite-many/:unitId", auth, async (req, res) => {
+    const user = req.user
+    const invitedUserIds = req.body.invitedUserIds
+    const unitId = req.params.unitId
+    try {
+        const unit = await Unit.findById(unitId)
+
+        if (!unit) {
+            return res.status(404).send('Unit not found')
+        }
+
+        invitedUserIds.forEach(async (invitedUserId) => {
+            const invitedUser = await User.findById(invitedUserId)
+
+            if (!invitedUser) {
+                return res.status(404).send('User not found')
+            }
+            if (!unit.users.includes(user._id)) {
+                return res.status(401).send()
+            }
+            if (unit.users.includes(invitedUserId)) {
+                return res.status(400).send("This User Already Exists in this Unit")
+            }
+
+            const exists = await Invitation.findOne({ unit: unit._id, invited: invitedUser._id })
+            if (exists) {
+                return res.status(400).send("Already Invited")
+            }
+
+            const invitation = new Invitation({
+                invitedBy: user._id,
+                invited: invitedUser._id,
+                unit: unit._id,
+                status: 'PENDING'
+            })
+
+            await invitation.save()
+
+            unit.invitations = unit.invitations.concat(invitation._id)
+            invitedUser.invitations = invitedUser.invitations.concat(invitation._id)
+            await invitedUser.save()
+        })
+
+        await unit.save()
+
+        res.send()
+    } catch (e) {
+        res.status(500).send({error: e.message})
+    }
+})
+
+
 //Accept Invitation
 router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
     const invitationId = req.params.invitationId

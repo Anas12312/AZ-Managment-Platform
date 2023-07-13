@@ -2,17 +2,21 @@ const express = require('express')
 const User = require('../models/user')
 const router = new express.Router()
 const auth = require('../middleware/auth')
+const Unit = require('../models/unit')
 
 router.get('/users', async (req, res) => {
     try {
         if(req.query.search) {
-            const users = await User.find({
+            let users = await User.find({
                 $or: [
                     {name_lower: { $regex: req.query.search.toLowerCase()}},
                     {username_lower: { $regex: req.query.search.toLowerCase()}},
                     {email: { $regex: req.query.search.toLowerCase()}}
                 ]
             }).limit(7)
+
+
+
             return res.send(users)
         }else {
             const users = await User.find({})
