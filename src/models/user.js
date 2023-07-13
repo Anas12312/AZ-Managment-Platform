@@ -118,6 +118,18 @@ userSchema.pre('save', async function(next) {
     next()
 })
 
+userSchema.pre('updateOne', async function(next) {
+    const user = this
+    
+    user.name_lower = user.name.toLowerCase()
+    user.username_lower = user.username.toLowerCase()
+    if(user.isModified('password')) {
+        user.password = await bcrypt.hash(user.password, 8)
+    }
+
+    next()
+})
+
 const User = mongoose.model('User', userSchema)
 
 module.exports = User

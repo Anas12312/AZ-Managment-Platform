@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/user')
 const router = new express.Router()
 const auth = require('../middleware/auth')
+const bcrypt = require('bcryptjs')
 
 //LOGIN
 router.post('/account/login', async (req, res) => {
@@ -51,6 +52,25 @@ router.post('/account/signup', async (req, res) => {
         res.status(201).send({ user, token })
     } catch (e) {
         res.status(500).send({error: e.message})
+    }
+})
+
+router.put('/account/password', auth,async (req,res) => {
+    const user = req.user
+    const newPassword = req.body.newPassword
+    const oldPassword = req.body.oldPassword
+    try {
+        if(!oldPassword || !newPassword) {
+            return res.status(400).send({error: 'Invaild payload'})
+        }
+
+        const userDb = await  User.findById(user._id)
+
+        await userDb.changePassword(oldPassword, newPassword)
+
+        return res.send({message: 'Password changed successfully'})
+    }catch(err){
+        res.status(400).send({error:err.message})
     }
 })
 
