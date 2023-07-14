@@ -305,17 +305,17 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
 
 
         const unit = await Unit.findById(invitation.unit)
-        unit.users = unit.users.concat(user._id)
+        unit.users = unit.users.concat(currentUser._id)
         const user = await User.findById(invitation.user)
-        user.units = user.units.concat(unit._id)
+        currentUser.units = currentUser.units.concat(unit._id)
 
         invitation.status = 'ACCEPTED'
 
         unit.invitations = unit.invitations.filter(inv => !inv.equals(invitation._id))
         await unit.save()
 
-        user.invitations = user.invitations.filter(inv => !inv.equals(invitation._id))
-        await user.save()
+        currentUser.invitations = currentUser.invitations.filter(inv => !inv.equals(invitation._id))
+        await currentUser.save()
         await invitation.deleteOne()
 
         res.send('Accepted')
