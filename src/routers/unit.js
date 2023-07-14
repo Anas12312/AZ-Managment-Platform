@@ -54,7 +54,8 @@ router.get('/units', auth, async (req, res) => {
             }
         })
         for (let i = 0; i < count; i++) {
-            await units.units[i].populate('owner', { name: 1, _id: 1, username: 1 })
+            if(units.units[i])
+                await units.units[i].populate('owner', { name: 1, _id: 1, username: 1 })
         }
         const response = {
             units: units.units,
@@ -306,7 +307,6 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
 
         const unit = await Unit.findById(invitation.unit)
         unit.users = unit.users.concat(currentUser._id)
-        const user = await User.findById(invitation.user)
         currentUser.units = currentUser.units.concat(unit._id)
 
         invitation.status = 'ACCEPTED'
@@ -500,16 +500,26 @@ router.get('/units/users/:id', auth, async (req, res) => {
             _id: 1,
             name: 1,
             description: 1,
-            owner: 1
+            owner: 1,
+            users: 1
         })
 
         if (!unit) {
             return res.status(404).send({ message: "Unit Not Found" })
         }
-
+        await unit.populate({
+            path: 'users',
+            select: {
+                _id: 1,
+                name: 1,
+                username: 1,
+                email: 1,
+                imgUrl: 1
+            }
+        })
         const invitations = await Invitation.find({ unit: unit._id })
-
-        const users = await Promise.all(invitations.map(async (inv) => {
+        const users = unit.users
+        const invitedUsers = await Promise.all(invitations.map(async (inv) => {
             await inv.populate({
                 path: 'invited',
                 select: {
@@ -542,17 +552,18 @@ router.get('/units/users/:id', auth, async (req, res) => {
         let usersDto = [{
             ...unit.owner.toObject(),
             status:'OWNER'
-        }].concat(users)
+        }].concat(invitedUsers).concat(users)
 
         if(search) {
             usersDto = usersDto.filter(user => (user.name.toLowerCase().includes(search)) || (user.email.toLowerCase().includes(search)) || (user.username.toLowerCase().includes(search)))
         }
-
+        usersDto = usersDto.filter(user => (user._id.toString() != unit.owner._id) || user.status == 'OWNER')
         res.send({
             unit,
             users:usersDto
         })
     } catch (e) {
+        console.log(e)
         res.status(500).send(e.message)
     }
 })
