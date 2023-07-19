@@ -634,4 +634,30 @@ router.delete('/units/users/:userId/:unitId', auth, async (req, res) => {
     }
 }) 
 
+
+router.delete('/units/leave/:unitId', auth, async (req, res) => {
+    const unitId = req.params.unitId;
+    const user = req.user;
+    try {
+        const unit = await Unit.findById(unitId);
+
+        if(!unit) return res.status(404).send()
+        
+        if(unit.owner.equals(user._id)) return res.status(400).send({error: 'You cant leace your Unit'})
+
+        if(!unit.users.includes(user._id)) return res.status(400).send({error: 'You are not in the unit'})
+
+        unit.users = unit.users.filter(u => !u.equals(user._id))
+        user.units = user.units.filter(u => !u.equals(unit._id))
+
+        await user.save()
+        await unit.save()
+
+        return res.send({message: 'You left the unit successfully!'})
+    }catch(e) {
+        console.log(e);
+        res.status(500).send({error: e.message})
+    }
+})
+
 module.exports = router
