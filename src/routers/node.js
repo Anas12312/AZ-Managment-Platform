@@ -2,6 +2,7 @@ const express = require('express')
 const auth = require('../middleware/auth')
 const Unit = require('../models/unit')
 const Node = require('../models/node')
+const { nodeCreatedNotification } = require('../utils/notifications')
 
 const router = new express.Router()
 // Create Node
@@ -28,6 +29,7 @@ router.post('/nodes/:unitId', auth, async (req, res) => {
         await parentUnit.save()
 
         res.status(201).send(node)
+        nodeCreatedNotification(parentUnit.users, user._id, node._id)
     } catch (error) {
         console.log(error);
         return res.status(500).send()

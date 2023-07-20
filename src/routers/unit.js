@@ -5,6 +5,7 @@ const Unit = require('../models/unit')
 const Node = require('../models/node')
 const Invitation = require('../models/invitation')
 const { userInfo } = require('os')
+const { invitationNotification, joindedUnitNotification } = require('../utils/notifications')
 
 const router = new express.Router()
 
@@ -233,6 +234,7 @@ router.post("/units/invite/:invitedUserId/:unitId", auth, async (req, res) => {
         await invitedUser.save()
 
         res.send(invitation)
+        invitationNotification(invitedUser._id, user._id, invitation._id)
     } catch (e) {
         res.status(500).send()
     }
@@ -279,6 +281,7 @@ router.post("/units/invite-many/:unitId", auth, async (req, res) => {
             unit.invitations = unit.invitations.concat(invitation._id)
             invitedUser.invitations = invitedUser.invitations.concat(invitation._id)
             await invitedUser.save()
+            invitationNotification(invitedUser._id, user._id, invitation._id)
         })
 
         await unit.save()
@@ -319,6 +322,7 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
         await invitation.deleteOne()
 
         res.send('Accepted')
+        joindedUnitNotification(unit.users, currentUser._id, unit._id)
     } catch (error) {
         console.log(error)
         res.status(500).send()
@@ -591,7 +595,7 @@ router.delete('/units/users/:invitationId', auth, async (req,res) => {
         user.invitations = user.invitations.filter(inv => !inv.equals(invitation._id))
         await user.save()
         await invitation.deleteOne()
-        res.send({message: "Deleted Succesfully"})
+        return res.send({message: "Deleted Succesfully"})
     }catch(e) {
         res.status(500).send(e)
     }

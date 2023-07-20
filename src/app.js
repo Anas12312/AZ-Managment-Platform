@@ -7,6 +7,7 @@ const nodeRouter = require('./routers/node')
 const accountRouter = require('./routers/account')
 const resourceRouter = require('./routers/resource')
 const fileRouter = require('./routers/file')
+const notificationRouter = require('./routers/notification')
 const fileUpload = require('express-fileupload')
 
 const app = express()
@@ -21,7 +22,7 @@ app.use(unitRouter)
 app.use(nodeRouter)
 app.use(resourceRouter)
 app.use(fileRouter)
-
+app.use(notificationRouter)
 
 app.listen(port, () => {
     console.log('Server is Running on port: ' + port)

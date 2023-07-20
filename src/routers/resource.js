@@ -3,6 +3,7 @@ const auth = require('../middleware/auth')
 const Unit = require('../models/unit')
 const Node = require('../models/node')
 const Resource = require('../models/resource')
+const { resourceAddedNotification, resourceEditedNotification } = require('../utils/notifications')
 
 const router = new express.Router()
 
@@ -31,6 +32,8 @@ router.post("/resource/:nodeId", auth, async(req, res) => {
         await resource.populate('createdBy', {_id:1, name:1, imgUrl:1});
 
         res.status(201).send(resource)
+        const unit = await Unit.findById(node.parentUnit)
+        resourceAddedNotification(unit.users, user.id, resource._id)
     }catch(e) {
         console.log(e)
         res.status(500).send()
@@ -117,6 +120,8 @@ router.put("/resource/:id", auth, async (req,res) => {
         await Resource.updateOne({_id: id}, req.body)
 
         res.send("Updated Successfully");
+        const unit = await Unit.findById(node.parentUnit)
+        resourceEditedNotification(unit.users, user._id, id)
     } catch (error) {
         res.status(500).send()
     }
