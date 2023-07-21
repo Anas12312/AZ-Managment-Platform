@@ -234,7 +234,7 @@ router.post("/units/invite/:invitedUserId/:unitId", auth, async (req, res) => {
         await invitedUser.save()
 
         res.send(invitation)
-        invitationNotification(invitedUser._id, user._id, invitation._id)
+        invitationNotification(invitedUser._id, user._id, invitation._id, unit.name)
     } catch (e) {
         res.status(500).send()
     }
@@ -281,7 +281,7 @@ router.post("/units/invite-many/:unitId", auth, async (req, res) => {
             unit.invitations = unit.invitations.concat(invitation._id)
             invitedUser.invitations = invitedUser.invitations.concat(invitation._id)
             await invitedUser.save()
-            invitationNotification(invitedUser._id, user._id, invitation._id)
+            invitationNotification(invitedUser._id, user._id, invitation._id, unit.name)
         })
 
         await unit.save()
