@@ -1,12 +1,13 @@
 const Notification = require('../models/notification')
 const User = require('../models/user')
-const invitationNotification = async (userId, invitedById, invitationId, unitName) => {
+const invitationNotification = async (userId, invitedById, invitationId, unitName, unitId) => {
     const notification = new Notification({
         userId: userId,
         type: 'Invitation',
         actorId: invitedById,
         actionId: invitationId,
-        unitName: unitName
+        unitName,
+        unitId
     })
     await notification.save()
     const user = await User.findById(userId)
@@ -16,7 +17,7 @@ const invitationNotification = async (userId, invitedById, invitationId, unitNam
     }
 }
 
-const joindedUnitNotification = async (usersIds, newMemberId, unitId) => {
+const joindedUnitNotification = async (usersIds, newMemberId, unitId, _unitId) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== newMemberId.toString()) {
@@ -25,6 +26,7 @@ const joindedUnitNotification = async (usersIds, newMemberId, unitId) => {
                     type: 'Unit',
                     actorId: newMemberId,
                     actionId: unitId,
+                    _unitId
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])
@@ -38,7 +40,7 @@ const joindedUnitNotification = async (usersIds, newMemberId, unitId) => {
         console.log(e)
     }
 }
-const nodeCreatedNotification = async (usersIds, createdById, nodeId, unitName) => {
+const nodeCreatedNotification = async (usersIds, createdById, nodeId, unitName, unitId) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== createdById.toString()) {
@@ -47,7 +49,8 @@ const nodeCreatedNotification = async (usersIds, createdById, nodeId, unitName) 
                     type: 'Node',
                     actorId: createdById,
                     actionId: nodeId,
-                    unitName: unitName
+                    unitName: unitName,
+                    unitId
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])
@@ -61,7 +64,7 @@ const nodeCreatedNotification = async (usersIds, createdById, nodeId, unitName) 
         console.log(e)
     }
 }
-const resourceAddedNotification = async (usersIds, createdById, resourceId, nodeName, unitName) => {
+const resourceAddedNotification = async (usersIds, createdById, resourceId, nodeName, unitName, unitId) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== createdById.toString()) {
@@ -72,7 +75,8 @@ const resourceAddedNotification = async (usersIds, createdById, resourceId, node
                     actionId: resourceId,
                     message: "CREATE",
                     nodeName: nodeName,
-                    unitName: unitName
+                    unitName: unitName,
+                    unitId
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])
@@ -86,7 +90,7 @@ const resourceAddedNotification = async (usersIds, createdById, resourceId, node
         console.log(e)
     }
 }
-const resourceEditedNotification = async (usersIds, editedById, resourceId, nodeName, unitName) => {
+const resourceEditedNotification = async (usersIds, editedById, resourceId, nodeName, unitName, unitId) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== editedById.toString()) {
@@ -97,7 +101,8 @@ const resourceEditedNotification = async (usersIds, editedById, resourceId, node
                     actionId: resourceId,
                     message: "EDIT",
                     unitName,
-                    nodeName
+                    nodeName,
+                    unitId
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])

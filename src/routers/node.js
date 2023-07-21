@@ -29,7 +29,7 @@ router.post('/nodes/:unitId', auth, async (req, res) => {
         await parentUnit.save()
 
         res.status(201).send(node)
-        nodeCreatedNotification(parentUnit.users, user._id, node._id, parentUnit.name)
+        nodeCreatedNotification(parentUnit.users, user._id, node._id, parentUnit.name, parentUnit._id)
     } catch (error) {
         console.log(error);
         return res.status(500).send()
