@@ -1,11 +1,12 @@
 const Notification = require('../models/notification')
 const User = require('../models/user')
-const invitationNotification = async (userId, invitedById, invitationId) => {
+const invitationNotification = async (userId, invitedById, invitationId, unitName) => {
     const notification = new Notification({
         userId: userId,
         type: 'Invitation',
         actorId: invitedById,
         actionId: invitationId,
+        unitName: unitName
     })
     await notification.save()
     const user = await User.findById(userId)
@@ -37,7 +38,7 @@ const joindedUnitNotification = async (usersIds, newMemberId, unitId) => {
         console.log(e)
     }
 }
-const nodeCreatedNotification = async (usersIds, createdById, nodeId) => {
+const nodeCreatedNotification = async (usersIds, createdById, nodeId, unitName) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== createdById.toString()) {
@@ -46,6 +47,7 @@ const nodeCreatedNotification = async (usersIds, createdById, nodeId) => {
                     type: 'Node',
                     actorId: createdById,
                     actionId: nodeId,
+                    unitName: unitName
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])
@@ -59,7 +61,7 @@ const nodeCreatedNotification = async (usersIds, createdById, nodeId) => {
         console.log(e)
     }
 }
-const resourceAddedNotification = async (usersIds, createdById, resourceId) => {
+const resourceAddedNotification = async (usersIds, createdById, resourceId, nodeName, unitName) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== createdById.toString()) {
@@ -68,7 +70,9 @@ const resourceAddedNotification = async (usersIds, createdById, resourceId) => {
                     type: 'Resource',
                     actorId: createdById,
                     actionId: resourceId,
-                    message: "CREATE"
+                    message: "CREATE",
+                    nodeName: nodeName,
+                    unitName: unitName
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])
@@ -82,7 +86,7 @@ const resourceAddedNotification = async (usersIds, createdById, resourceId) => {
         console.log(e)
     }
 }
-const resourceEditedNotification = async (usersIds, editedById, resourceId) => {
+const resourceEditedNotification = async (usersIds, editedById, resourceId, nodeName, unitName) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== editedById.toString()) {
@@ -91,7 +95,9 @@ const resourceEditedNotification = async (usersIds, editedById, resourceId) => {
                     type: 'Resource',
                     actorId: editedById,
                     actionId: resourceId,
-                    message: "EDIT"
+                    message: "EDIT",
+                    unitName,
+                    nodeName
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])

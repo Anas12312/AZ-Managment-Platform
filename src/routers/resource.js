@@ -33,7 +33,7 @@ router.post("/resource/:nodeId", auth, async(req, res) => {
 
         res.status(201).send(resource)
         const unit = await Unit.findById(node.parentUnit)
-        resourceAddedNotification(unit.users, user.id, resource._id)
+        resourceAddedNotification(unit.users, user.id, resource._id, node.name, unit.name)
     }catch(e) {
         console.log(e)
         res.status(500).send()
@@ -121,7 +121,7 @@ router.put("/resource/:id", auth, async (req,res) => {
 
         res.send("Updated Successfully");
         const unit = await Unit.findById(node.parentUnit)
-        resourceEditedNotification(unit.users, user._id, id)
+        resourceEditedNotification(unit.users, user._id, id, node.name, unit.name)
     } catch (error) {
         res.status(500).send()
     }

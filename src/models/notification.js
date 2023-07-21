@@ -24,6 +24,12 @@ const schema = new mongoose.Schema({
         required: true,
         refPath: 'type'
     },
+    unitName: {
+        type: String
+    },
+    nodeName: {
+        type: String
+    },
     seen: {
         type: Boolean,
         default: false
@@ -32,6 +38,7 @@ const schema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     }
+    
 }) 
 
 const Notification = mongoose.model('Notification', schema)
