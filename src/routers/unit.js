@@ -147,7 +147,6 @@ router.get('/units/:id', auth, async (req, res) => {
         }
         res.send(unit)
     } catch (e) {
-        console.log(e)
         res.status(500).send()
     }
 })
@@ -322,7 +321,7 @@ router.post('/invitations/accept/:invitationId', auth, async (req, res) => {
         await invitation.deleteOne()
 
         res.send('Accepted')
-        joindedUnitNotification(unit.users, currentUser._id, unit._id, unit._id)
+        joindedUnitNotification(unit.users, currentUser._id, unit._id)
     } catch (error) {
         console.log(error)
         res.status(500).send()
