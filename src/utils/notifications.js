@@ -12,12 +12,12 @@ const invitationNotification = async (userId, invitedById, invitationId, unitNam
     await notification.save()
     const user = await User.findById(userId)
     if(user) {
-        user.notifications = user.notifications.concat(notification._id)
+        user.notifications = [notification._id, ...user.notifications]
         await user.save()
     }
 }
 
-const joindedUnitNotification = async (usersIds, newMemberId, unitId, _unitId) => {
+const joindedUnitNotification = async (usersIds, newMemberId, unitId) => {
     try {
         for(let i = 0; i < usersIds.length ;i++) {
             if(usersIds[i].toString() !== newMemberId.toString()) {
@@ -25,13 +25,12 @@ const joindedUnitNotification = async (usersIds, newMemberId, unitId, _unitId) =
                     userId: usersIds[i],
                     type: 'Unit',
                     actorId: newMemberId,
-                    actionId: unitId,
-                    _unitId
+                    actionId: unitId
                 })
                 await notification.save()
                 const user = await User.findById(usersIds[i])
                 if(user) {
-                    user.notifications = user.notifications.concat(notification._id)
+                    user.notifications = [notification._id, ...user.notifications]
                     await user.save()
                 }
             }
@@ -55,7 +54,7 @@ const nodeCreatedNotification = async (usersIds, createdById, nodeId, unitName, 
                 await notification.save()
                 const user = await User.findById(usersIds[i])
                 if(user) {
-                    user.notifications = user.notifications.concat(notification._id)
+                    user.notifications = [notification._id, ...user.notifications]
                     await user.save()
                 }
             }
@@ -81,7 +80,7 @@ const resourceAddedNotification = async (usersIds, createdById, resourceId, node
                 await notification.save()
                 const user = await User.findById(usersIds[i])
                 if(user) {
-                    user.notifications = user.notifications.concat(notification._id)
+                    user.notifications = [notification._id, ...user.notifications]
                     await user.save()
                 }
             }
@@ -107,7 +106,7 @@ const resourceEditedNotification = async (usersIds, editedById, resourceId, node
                 await notification.save()
                 const user = await User.findById(usersIds[i])
                 if(user) {
-                    user.notifications = user.notifications.concat(notification._id)
+                    user.notifications = [notification._id, ...user.notifications]
                     await user.save()
                 }
             }

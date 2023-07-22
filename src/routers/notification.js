@@ -10,12 +10,12 @@ router.get('/notifications', auth, async (req,res) => {
         limit: parseInt(req.query.limit, 10) || 10
     }
     try {
+        const count = user.notifications.length
         await user.populate({
             path: 'notifications',
             options: {
                 skip: pageOptions.page * pageOptions.limit,
                 limit: pageOptions.limit,
-                sort: { date: -1 }
             },
         })
         for (let i = 0; i < user.notifications.length; i++) {
@@ -25,7 +25,14 @@ router.get('/notifications', auth, async (req,res) => {
                 await user.notifications[i].populate('actionId')
             }
         }
-        res.send(user.notifications)
+        res.send({
+            next: count > ((pageOptions.page + 1) * pageOptions.limit) && `/notifications?page=${pageOptions.page+1}&limit=${pageOptions.limit}`,
+            notifications: user.notifications,
+        })
+        for(let i = 0; i < user.notifications.length; i++) {
+            user.notifications[i].seen = true
+            user.notifications[i].save()
+        }
     }catch(e) {
         res.status(500).send(e.message)
     }
