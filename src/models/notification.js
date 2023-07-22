@@ -27,6 +27,10 @@ const schema = new mongoose.Schema({
     unitName: {
         type: String
     },
+    unitId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Unit'
+    },
     nodeName: {
         type: String
     },
