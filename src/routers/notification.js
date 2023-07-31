@@ -11,27 +11,24 @@ router.get('/notifications', auth, async (req,res) => {
     }
     try {
         const count = user.notifications.length
-        await user.populate({
-            path: 'notifications',
-            options: {
-                skip: pageOptions.page * pageOptions.limit,
-                limit: pageOptions.limit,
-            },
-        })
-        for (let i = 0; i < user.notifications.length; i++) {
-            if(user.notifications[i])
+        const notifications = await Notification.find({userId: user._id})
+                                                .skip(pageOptions.page * pageOptions.limit)
+                                                .limit(pageOptions.limit) 
+                                                .sort({date: -1})
+        for (let i = 0; i < notifications.length; i++) {
+            if(notifications[i])
             {
-                await user.notifications[i].populate('actorId', { name: 1, _id: 1, username: 1, imgUrl: 1 })
-                await user.notifications[i].populate('actionId')
+                await notifications[i].populate('actorId', { name: 1, _id: 1, username: 1, imgUrl: 1 })
+                await notifications[i].populate('actionId')
             }
         }
         res.send({
             next: count > ((pageOptions.page + 1) * pageOptions.limit) && `/notifications?page=${pageOptions.page+1}&limit=${pageOptions.limit}`,
-            notifications: user.notifications,
+            notifications: notifications,
         })
-        for(let i = 0; i < user.notifications.length; i++) {
-            user.notifications[i].seen = true
-            user.notifications[i].save()
+        for(let i = 0; i < notifications.length; i++) {
+            notifications[i].seen = true
+            notifications[i].save()
         }
     }catch(e) {
         res.status(500).send(e.message)
