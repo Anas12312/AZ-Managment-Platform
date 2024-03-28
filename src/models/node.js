@@ -62,7 +62,7 @@ const schema = new mongoose.Schema({
 schema.methods.isAllowedUser = async function(user) {
     const node = this
     
-    await node.populate("parentUnit")
+      await node.populate("parentUnit")
 
     return node.parentUnit.users.includes(user._id);
 }

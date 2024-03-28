@@ -41,7 +41,9 @@ const router = new express.Router()
 // })
 
 router.post('/upload/', async (req, res) => {
+    console.log(req.files)
     try {
+        
 
         const img = req.files.file
         const client = new ftp.Client()
