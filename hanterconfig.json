@@ -1,0 +1,6 @@
+{
+	"exculdeRules": [""],
+	"exculdeRulesDirs": ["node_modules/hanter/rules/type1tests/**/*", "node_modules/hanter/rules/type1tests/**/*.*", "node_modules/hanter/rules/type1tests/**/.*"],
+	"ignoredPatterns": ["node_modules/**/*", "node_modules/**/*.*", "node_modules/**/.*"],
+	"extensions": ["js", "mjs"]
+}

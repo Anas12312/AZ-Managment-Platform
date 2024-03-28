@@ -22,7 +22,7 @@ router.get('/notifications', auth, async (req,res) => {
                 await notifications[i].populate('actionId')
             }
         }
-        res.send({
+      res.send({
             next: count > ((pageOptions.page + 1) * pageOptions.limit) && `/notifications?page=${pageOptions.page+1}&limit=${pageOptions.limit}`,
             notifications: notifications,
         })
